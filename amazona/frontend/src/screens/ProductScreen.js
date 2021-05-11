@@ -1,9 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import Raiting from '../components/Raiting';
-import data from "../data";
-const ProductScreen = ({match}) => {
-    const product = data.products.find(x=> x._id === match.params.id)
+import data from '../data'
+const ProductScreen = (props) => {
+    const product = data.products.find(x=> x._id === props.match.params.id)
     if(!product){
         return <div>Product Not Found </div>
     }
@@ -47,7 +47,7 @@ const ProductScreen = ({match}) => {
                                         {product.countInStock > 0 ?(
                                             <span className="success">In Stock</span>
                                         ):(
-                                            <span className="error">Unavilable</span>
+                                            <span className="danger">Unavilable</span>
                                         )}
                                     </div>
                                </div>

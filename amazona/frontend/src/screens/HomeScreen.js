@@ -19,13 +19,12 @@ const HomeScreen = () => {
              :(
             <div className="row center">
                 {
-                    products.map((product,i)=>{
-                        return(
+                    products.map((product,i)=>(
                     <Product key={product._id} product={product} />
-                    )})
-                }
-                
+                    ))}
+                    
             </div>
+                
              )
             }
         

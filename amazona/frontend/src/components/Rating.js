@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Raiting = ({rating,numReviews}) => {
+const Rating = ({rating,numReviews}) => {
     return (
             <div className="rating">
                <span><i className={ rating>=1?"fa fa-star": rating>=0.5?"fa fa-star-half-o":"fa fa-star-0"} ></i></span>
@@ -13,4 +13,4 @@ const Raiting = ({rating,numReviews}) => {
     )
 }
 
-export default Raiting
+export default Rating

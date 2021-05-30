@@ -8,6 +8,10 @@
     "build": "cd frontend && npm install && npm run build",
     "start": "nodemon --watch backend --exec node --experimental-modules backend/server.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danieleliyahu/sellingWeb"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

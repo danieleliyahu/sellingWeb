@@ -8,8 +8,8 @@ import {
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_SUCCESS,
   ORDER_PAY_REQUEST,
-  ORDER_PAY_SUCCESS,
   ORDER_PAY_FAIL,
+  ORDER_PAY_SUCCESS,
   ORDER_MINE_LIST_REQUEST,
   ORDER_MINE_LIST_FAIL,
   ORDER_MINE_LIST_SUCCESS,
@@ -17,11 +17,11 @@ import {
   ORDER_LIST_SUCCESS,
   ORDER_LIST_FAIL,
   ORDER_DELETE_REQUEST,
-  ORDER_DELETE_FAIL,
   ORDER_DELETE_SUCCESS,
-  ORDER_DELIVER_FAIL,
+  ORDER_DELETE_FAIL,
   ORDER_DELIVER_REQUEST,
   ORDER_DELIVER_SUCCESS,
+  ORDER_DELIVER_FAIL,
 } from "../constants/orderConstants";
 
 export const createOrder = (order) => async (dispatch, getState) => {
@@ -39,8 +39,6 @@ export const createOrder = (order) => async (dispatch, getState) => {
     dispatch({ type: CART_EMPTY });
     localStorage.removeItem("cartItems");
   } catch (error) {
-    console.log("data");
-
     dispatch({
       type: ORDER_CREATE_FAIL,
       payload:
@@ -93,7 +91,6 @@ export const payOrder =
       dispatch({ type: ORDER_PAY_FAIL, payload: message });
     }
   };
-
 export const listOrderMine = () => async (dispatch, getState) => {
   dispatch({ type: ORDER_MINE_LIST_REQUEST });
   const {
@@ -114,7 +111,6 @@ export const listOrderMine = () => async (dispatch, getState) => {
     dispatch({ type: ORDER_MINE_LIST_FAIL, payload: message });
   }
 };
-
 export const listOrders = () => async (dispatch, getState) => {
   dispatch({ type: ORDER_LIST_REQUEST });
   const {
@@ -124,6 +120,7 @@ export const listOrders = () => async (dispatch, getState) => {
     const { data } = await Axios.get("/api/orders", {
       headers: { Authorization: `Bearer ${userInfo.token}` },
     });
+    console.log(data);
     dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -133,7 +130,6 @@ export const listOrders = () => async (dispatch, getState) => {
     dispatch({ type: ORDER_LIST_FAIL, payload: message });
   }
 };
-
 export const deleteOrder = (orderId) => async (dispatch, getState) => {
   dispatch({ type: ORDER_DELETE_REQUEST, payload: orderId });
   const {

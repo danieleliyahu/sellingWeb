@@ -2,8 +2,8 @@ import express from "express";
 import expressAsyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import { isAdmin, isAuth } from "../utils.js";
-const orderRouter = express();
 
+const orderRouter = express.Router();
 orderRouter.get(
   "/",
   isAuth,
@@ -13,7 +13,6 @@ orderRouter.get(
     res.send(orders);
   })
 );
-
 orderRouter.get(
   "/mine",
   isAuth,
@@ -22,11 +21,12 @@ orderRouter.get(
     res.send(orders);
   })
 );
+
 orderRouter.post(
   "/",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    if (req.body.orderItems.lenght === 0) {
+    if (req.body.orderItems.length === 0) {
       res.status(400).send({ message: "Cart is empty" });
     } else {
       const order = new Order({
@@ -39,13 +39,14 @@ orderRouter.post(
         totalPrice: req.body.totalPrice,
         user: req.user._id,
       });
-      const createOrder = await order.save();
+      const createdOrder = await order.save();
       res
         .status(201)
-        .send({ message: "New Order Created", order: createOrder });
+        .send({ message: "New Order Created", order: createdOrder });
     }
   })
 );
+
 orderRouter.get(
   "/:id",
   isAuth,

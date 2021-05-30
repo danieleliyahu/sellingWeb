@@ -8,8 +8,15 @@
     "build": "cd frontend && npm install && npm run build",
     "start": "nodemon --watch backend --exec node --experimental-modules backend/server.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danieleliyahu/sellingWeb"
+  },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danieleliyahu/sellingWeb"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^9.0.2",

@@ -22,7 +22,6 @@ const ProfileScreen = () => {
   } = userUpdateProfile;
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log(userDetails);
     if (!user) {
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
       dispatch(detailsUser(userInfo._id));

@@ -24,6 +24,7 @@ const ProfileScreen = () => {
     loading: loadingUpdate,
   } = userUpdateProfile;
   const dispatch = useDispatch();
+  console.log(user);
   useEffect(() => {
     if (!user) {
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
@@ -32,7 +33,7 @@ const ProfileScreen = () => {
       setName(userInfo.name);
       setEmail(userInfo.email);
     }
-    if (user.name) {
+    if (user) {
       setSellerName(user.seller.name);
       setSellerLogo(user.seller.logo);
       setSellerDescription(user.seller.description);

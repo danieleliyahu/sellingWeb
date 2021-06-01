@@ -52,6 +52,7 @@ const OrderListScreen = (props) => {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id}>
+                {console.log(order)}
                 <td>{order._id}</td>
                 <td>{order.user.name}</td>
                 <td>{order.createdAt.substring(0, 10)}</td>

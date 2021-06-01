@@ -38,10 +38,11 @@ export default function HomeScreen() {
           <Carousel showArrows autoPlay showThumbs={false}>
             {sellers.map((seller) => (
               <div key={seller._id}>
-                <div></div>
                 <Link to={`/seller/${seller._id}`}>
                   <div>
+                    {" "}
                     <img src={seller.seller.logo} alt={seller.seller.name} />
+                    <p className="legend">{seller.seller.name}</p>
                   </div>
                 </Link>
               </div>

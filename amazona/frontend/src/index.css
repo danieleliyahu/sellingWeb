@@ -311,7 +311,9 @@ img.large {
 .carousel .slide img {
   max-width: 30rem;
 }
-
+.slide {
+  background: black;
+}
 /* Search */
 .search button {
   border-radius: 0 0.5rem 0.5rem 0;

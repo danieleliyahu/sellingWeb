@@ -24,7 +24,6 @@ const ProfileScreen = () => {
     loading: loadingUpdate,
   } = userUpdateProfile;
   const dispatch = useDispatch();
-  console.log(user);
   useEffect(() => {
     if (!user) {
       dispatch({ type: USER_UPDATE_PROFILE_RESET });

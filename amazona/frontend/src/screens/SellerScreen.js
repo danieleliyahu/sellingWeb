@@ -36,7 +36,6 @@ const SellerScreen = (props) => {
             <li>
               <div className="row start">
                 <div className="p-1">
-                  {console.log(user)}
                   <img
                     className="small"
                     src={user.seller.logo}

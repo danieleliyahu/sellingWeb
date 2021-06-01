@@ -122,7 +122,6 @@ export const listOrders =
       const { data } = await Axios.get(`/api/orders?seller=${seller}`, {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       });
-      console.log(data);
       dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
     } catch (error) {
       const message =

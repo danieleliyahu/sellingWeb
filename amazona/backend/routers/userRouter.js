@@ -33,7 +33,6 @@ userRouter.post(
   expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-      console.log(user);
       if (bcrypt.compareSync(req.body.password, user.password)) {
         res.send({
           _id: user._id,
@@ -73,7 +72,6 @@ userRouter.post(
 userRouter.get(
   "/:id",
   expressAsyncHandler(async (req, res) => {
-    console.log(req.params.id);
     const user = await User.findById(req.params.id);
     if (user) {
       res.send(user);
@@ -147,8 +145,6 @@ userRouter.put(
   expressAsyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     if (user) {
-      console.log(req.body.isSeller);
-      console.log(user.isSeller);
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
       user.isSeller =

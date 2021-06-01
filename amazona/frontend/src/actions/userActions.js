@@ -150,12 +150,10 @@ export const deleteUser = (userId) => async (dispatch, getState) => {
 };
 
 export const updateUser = (user) => async (dispatch, getState) => {
-  console.log(user);
   dispatch({ type: USER_UPDATE_PROFILE_REQUEST, payload: user });
   const {
     userSignin: { userInfo },
   } = getState();
-  console.log(user);
   try {
     const { data } = await Axios.put(`/api/users/${user._id}`, user, {
       headers: { Authorization: `Bearer ${userInfo.token}` },

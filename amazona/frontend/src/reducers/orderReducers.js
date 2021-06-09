@@ -24,6 +24,9 @@ import {
   ORDER_DELIVER_SUCCESS,
   ORDER_DELIVER_FAIL,
   ORDER_DELIVER_RESET,
+  ORDER_SUMMERY_REQUEST,
+  ORDER_SUMMERY_SUCCESS,
+  ORDER_SUMMERY_FAIL,
 } from "../constants/orderConstants";
 
 export const orderCreateReducer = (state = {}, action) => {
@@ -117,6 +120,22 @@ export const orderDeliverReducer = (state = {}, action) => {
       return { loading: false, error: action.payload };
     case ORDER_DELIVER_RESET:
       return {};
+    default:
+      return state;
+  }
+};
+
+export const orderSummaryReducer = (
+  state = { loading: true, summary: {} },
+  action
+) => {
+  switch (action.type) {
+    case ORDER_SUMMERY_REQUEST:
+      return { loading: true };
+    case ORDER_SUMMERY_SUCCESS:
+      return { loading: false, summary: action.payload };
+    case ORDER_SUMMERY_FAIL:
+      return { loading: false, error: action.payload };
     default:
       return state;
   }

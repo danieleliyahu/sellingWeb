@@ -1,6 +1,6 @@
-import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Axios from "axios";
 import { detailsProduct, updateProduct } from "../actions/productActions";
 import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
@@ -25,6 +25,7 @@ export default function ProductEditScreen(props) {
     error: errorUpdate,
     success: successUpdate,
   } = productUpdate;
+
   const dispatch = useDispatch();
   useEffect(() => {
     if (successUpdate) {
@@ -42,9 +43,10 @@ export default function ProductEditScreen(props) {
       setBrand(product.brand);
       setDescription(product.description);
     }
-  }, [product, props.history, successUpdate, dispatch, productId]);
+  }, [product, dispatch, productId, successUpdate, props.history]);
   const submitHandler = (e) => {
     e.preventDefault();
+    // TODO: dispatch update product
     dispatch(
       updateProduct({
         _id: productId,
@@ -82,6 +84,7 @@ export default function ProductEditScreen(props) {
       setLoadingUpload(false);
     }
   };
+
   return (
     <div>
       <form className="form" onSubmit={submitHandler}>

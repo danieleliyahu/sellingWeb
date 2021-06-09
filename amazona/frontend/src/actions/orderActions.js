@@ -1,3 +1,4 @@
+import axios from "axios";
 import Axios from "axios";
 import { CART_EMPTY } from "../constants/cartConstants";
 import {
@@ -22,6 +23,9 @@ import {
   ORDER_DELIVER_REQUEST,
   ORDER_DELIVER_SUCCESS,
   ORDER_DELIVER_FAIL,
+  ORDER_SUMMERY_FAIL,
+  ORDER_SUMMERY_SUCCESS,
+  ORDER_SUMMERY_REQUEST,
 } from "../constants/orderConstants";
 
 export const createOrder = (order) => async (dispatch, getState) => {
@@ -122,6 +126,7 @@ export const listOrders =
       const { data } = await Axios.get(`/api/orders?seller=${seller}`, {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       });
+      console.log(data);
       dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -170,5 +175,25 @@ export const deliverOrder = (orderId) => async (dispatch, getState) => {
         ? error.response.data.message
         : error.message;
     dispatch({ type: ORDER_DELIVER_FAIL, payload: message });
+  }
+};
+export const summaryOrder = () => async (dispatch, getState) => {
+  dispatch({ type: ORDER_SUMMERY_REQUEST });
+  const {
+    userSignin: { userInfo },
+  } = getState();
+  try {
+    const { data } = await Axios.get("/api/orders/summary", {
+      headers: { Authorization: `Bearer ${userInfo.token}` },
+    });
+    dispatch({ type: ORDER_SUMMERY_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: ORDER_SUMMERY_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
   }
 };

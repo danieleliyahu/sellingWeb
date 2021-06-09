@@ -5,7 +5,7 @@ import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
 import { ORDER_DELETE_RESET } from "../constants/orderConstants";
 
-const OrderListScreen = (props) => {
+export default function OrderListScreen(props) {
   const sellerMode = props.match.path.indexOf("/seller") >= 0;
   const orderList = useSelector((state) => state.orderList);
   const { loading, error, orders } = orderList;
@@ -15,15 +15,16 @@ const OrderListScreen = (props) => {
     error: errorDelete,
     success: successDelete,
   } = orderDelete;
+
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch({ type: ORDER_DELETE_RESET });
     dispatch(listOrders({ seller: sellerMode ? userInfo._id : "" }));
-  }, [dispatch, successDelete]);
+  }, [dispatch, sellerMode, successDelete, userInfo._id]);
   const deleteHandler = (order) => {
-    if (window.confirm("Are you sure you want to delete?")) {
+    if (window.confirm("Are you sure to delete?")) {
       dispatch(deleteOrder(order._id));
     }
   };
@@ -50,6 +51,7 @@ const OrderListScreen = (props) => {
             </tr>
           </thead>
           <tbody>
+            {console.log(orders.user)}
             {orders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id}</td>
@@ -85,6 +87,4 @@ const OrderListScreen = (props) => {
       )}
     </div>
   );
-};
-
-export default OrderListScreen;
+}

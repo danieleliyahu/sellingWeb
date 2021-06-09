@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 import { listProductCategories } from "./actions/productActions";
 import LoadingBox from "./components/LoadingBox";
 import MessageBox from "./components/MessageBox";
+import DashboardScreen from "./screens/DashboardScreen";
 
 function App() {
   const cart = useSelector((state) => state.cart);
@@ -192,7 +193,7 @@ function App() {
             component={SearchScreen}
             exact></Route>{" "}
           <Route
-            path="/search/category/:category/name/:name/min/:min/max/:max/rating/:rating/order/:order"
+            path="/search/category/:category/name/:name/min/:min/max/:max/rating/:rating/order/:order/pageNumber/:pageNumber"
             component={SearchScreen}
             exact></Route>
           <PrivateRoute
@@ -201,6 +202,10 @@ function App() {
           <AdminRoute
             exact
             path="/productlist"
+            component={ProductListScreen}></AdminRoute>{" "}
+          <AdminRoute
+            exact
+            path="/productlist/pageNumber/:pageNumber"
             component={ProductListScreen}></AdminRoute>
           <AdminRoute
             exact
@@ -209,7 +214,10 @@ function App() {
           <AdminRoute path="/userlist" component={UserListScreen}></AdminRoute>
           <AdminRoute
             path="/user/:id/edit"
-            component={UserEditScreen}></AdminRoute>
+            component={UserEditScreen}></AdminRoute>{" "}
+          <AdminRoute
+            path="/dashboard"
+            component={DashboardScreen}></AdminRoute>
           <SellerRoute
             path="/productlist/seller"
             component={ProductListScreen}></SellerRoute>

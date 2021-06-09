@@ -6,13 +6,13 @@ import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
 import Rating from "../components/Rating";
 import { PRODUCT_REVIEW_CREATE_RESET } from "../constants/productConstants";
-const ProductScreen = (props) => {
+
+export default function ProductScreen(props) {
   const dispatch = useDispatch();
   const productId = props.match.params.id;
   const [qty, setQty] = useState(1);
   const productDetails = useSelector((state) => state.productDetails);
   const { loading, error, product } = productDetails;
-
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
 
@@ -25,9 +25,10 @@ const ProductScreen = (props) => {
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+
   useEffect(() => {
     if (successReviewCreate) {
-      Window.alert("Review Submitted Successfully");
+      window.alert("Review Submitted Successfully");
       setRating("");
       setComment("");
       dispatch({ type: PRODUCT_REVIEW_CREATE_RESET });
@@ -44,7 +45,7 @@ const ProductScreen = (props) => {
         createReview(productId, { rating, comment, name: userInfo.name })
       );
     } else {
-      alert("Please enter comment");
+      alert("Please enter comment and rating");
     }
   };
   return (
@@ -55,7 +56,7 @@ const ProductScreen = (props) => {
         <MessageBox variant="danger">{error}</MessageBox>
       ) : (
         <div>
-          <Link to="/">back to resulte</Link>
+          <Link to="/">Back to result</Link>
           <div className="row top">
             <div className="col-2">
               <img
@@ -73,9 +74,9 @@ const ProductScreen = (props) => {
                     rating={product.rating}
                     numReviews={product.numReviews}></Rating>
                 </li>
-                <li>Price : ${product.price}</li>
+                <li>Pirce : ${product.price}</li>
                 <li>
-                  Description
+                  Description:
                   <p>{product.description}</p>
                 </li>
               </ul>
@@ -86,14 +87,14 @@ const ProductScreen = (props) => {
                   <li>
                     Seller{" "}
                     <h2>
-                      {" "}
                       <Link to={`/seller/${product.seller._id}`}>
-                        {product.seller.name}
+                        {product.seller.seller.name}
                       </Link>
                     </h2>
+                    {console.log(product)}
                     <Rating
-                      rating={product.seller.rating}
-                      numReviews={product.seller.numReviews}></Rating>
+                      rating={product.seller.seller.rating}
+                      numReviews={product.seller.seller.numReviews}></Rating>
                   </li>
                   <li>
                     <div className="row">
@@ -108,7 +109,7 @@ const ProductScreen = (props) => {
                         {product.countInStock > 0 ? (
                           <span className="success">In Stock</span>
                         ) : (
-                          <span className="danger">Unavilable</span>
+                          <span className="danger">Unavailable</span>
                         )}
                       </div>
                     </div>
@@ -147,7 +148,7 @@ const ProductScreen = (props) => {
             </div>
           </div>
           <div>
-            <h2 id="review">Reviews</h2>
+            <h2 id="reviews">Reviews</h2>
             {product.reviews.length === 0 && (
               <MessageBox>There is no review</MessageBox>
             )}
@@ -155,7 +156,7 @@ const ProductScreen = (props) => {
               {product.reviews.map((review) => (
                 <li key={review._id}>
                   <strong>{review.name}</strong>
-                  <Rating rating={rating.rating} caption=""></Rating>
+                  <Rating rating={review.rating} caption=" "></Rating>
                   <p>{review.createdAt.substring(0, 10)}</p>
                   <p>{review.comment}</p>
                 </li>
@@ -181,7 +182,7 @@ const ProductScreen = (props) => {
                       </select>
                     </div>
                     <div>
-                      <label htmlFor="comment">comment</label>
+                      <label htmlFor="comment">Comment</label>
                       <textarea
                         id="comment"
                         value={comment}
@@ -214,6 +215,4 @@ const ProductScreen = (props) => {
       )}
     </div>
   );
-};
-
-export default ProductScreen;
+}

@@ -38,7 +38,7 @@ productRouter.get(
         : order === "toprated"
         ? { rating: -1 }
         : { _id: -1 };
-    const count = await Product.count({
+    const count = await Product.countDocuments({
       ...sellerFilter,
       ...nameFilter,
       ...categoryFilter,
@@ -109,7 +109,7 @@ productRouter.post(
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     const product = new Product({
-      name: "sample name " + Date.now(),
+      name: "sample name" + Date.now(),
       seller: req.user._id,
       image: "/images/p1.jpg",
       price: 0,

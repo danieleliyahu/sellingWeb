@@ -9,7 +9,7 @@ const orderRouter = express.Router();
 orderRouter.get(
   "/",
   isAuth,
-  isAdmin,
+  isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     const seller = req.query.seller || "";
     const sellerFilter = seller ? { seller } : {};
@@ -17,6 +17,8 @@ orderRouter.get(
       "user",
       "name"
     );
+    console.log(orders);
+    // console.log(orders);
     res.send(orders);
   })
 );
@@ -51,6 +53,7 @@ orderRouter.get(
       },
       { $sort: { _id: 1 } },
     ]);
+
     const dailyOrders = await Order.aggregate([
       {
         $group: {
@@ -60,6 +63,7 @@ orderRouter.get(
         },
       },
     ]);
+
     const productCategories = await Product.aggregate([
       {
         $group: {
@@ -68,6 +72,7 @@ orderRouter.get(
         },
       },
     ]);
+
     res.send({ productCategories, dailyOrders, users, orders });
   })
 );

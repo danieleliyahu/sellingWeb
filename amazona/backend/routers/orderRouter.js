@@ -11,6 +11,7 @@ orderRouter.get(
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
+    console.log("Hi");
     const seller = req.query.seller || "";
     const sellerFilter = seller ? { seller } : {};
     const orders = await Order.find({ ...sellerFilter }).populate(
@@ -26,6 +27,7 @@ orderRouter.get(
   "/mine",
   isAuth,
   expressAsyncHandler(async (req, res) => {
+    console.log("asdsa");
     const orders = await Order.find({ user: req.user._id });
     res.send(orders);
   })

@@ -52,20 +52,47 @@ userRouter.post(
 userRouter.post(
   "/register",
   expressAsyncHandler(async (req, res) => {
-    const user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 8),
-    });
-    const createdUser = await user.save();
-    res.send({
-      _id: createdUser._id,
-      name: createdUser.name,
-      email: createdUser.email,
-      isAdmin: createdUser.isAdmin,
-      isSeller: user.isSeller,
-      token: generateToken(createdUser),
-    });
+    const { name, email, sellerName, sellerLogo, sellerDescription } = req.body;
+    if (name && email && sellerName && sellerLogo && sellerDescription) {
+      const user = new User({
+        name,
+        email,
+        seller: {
+          name: sellerName,
+          logo: sellerLogo,
+          description: sellerDescription,
+        },
+        isSeller: true,
+
+        password: bcrypt.hashSync(req.body.password, 8),
+      });
+      console.log(user);
+      const createdUser = await user.save();
+      res.send({
+        _id: createdUser._id,
+        name: createdUser.name,
+        email: createdUser.email,
+        isAdmin: createdUser.isAdmin,
+        isSeller: user.isSeller,
+        token: generateToken(createdUser),
+      });
+    } else if (name && email) {
+      const user = new User({
+        name,
+        email,
+        password: bcrypt.hashSync(req.body.password, 8),
+      });
+      const createdUser = await user.save();
+      res.send({
+        _id: createdUser._id,
+        name: createdUser.name,
+        email: createdUser.email,
+        isAdmin: createdUser.isAdmin,
+        isSeller: user.isSeller,
+        token: generateToken(createdUser),
+      });
+    } else {
+    }
   })
 );
 

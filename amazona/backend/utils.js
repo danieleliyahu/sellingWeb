@@ -25,7 +25,7 @@ export const isAuth = (req, res, next) => {
       process.env.JWT_SECRET || "danieleliyho",
       (err, decode) => {
         if (err) {
-          req.status(401).send({ message: "Invalid Token" });
+          res.status(401).send({ message: "Invalid Token" });
         } else {
           req.user = decode;
           next();

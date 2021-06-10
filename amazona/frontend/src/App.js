@@ -28,6 +28,7 @@ import { listProductCategories } from "./actions/productActions";
 import LoadingBox from "./components/LoadingBox";
 import MessageBox from "./components/MessageBox";
 import DashboardScreen from "./screens/DashboardScreen";
+import ProductPostScreen from "./screens/ProductPostScreen";
 
 function App() {
   const cart = useSelector((state) => state.cart);
@@ -167,6 +168,10 @@ function App() {
         </aside>
         <main>
           <Route path="/seller/:id" component={SellerScreen}></Route>
+          <Route
+            path="/postproduct"
+            component={ProductPostScreen}
+            exact></Route>
           <Route path="/product/:id" component={ProductScreen} exact></Route>
           <Route
             path="/product/:id/edit"

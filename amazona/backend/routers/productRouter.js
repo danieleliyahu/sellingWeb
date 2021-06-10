@@ -108,20 +108,26 @@ productRouter.post(
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
-    const product = new Product({
-      name: "sample name" + Date.now(),
-      seller: req.user._id,
-      image: "/images/p1.jpg",
-      price: 0,
-      category: "sample category",
-      brand: "sample brand",
-      countInStock: 0,
-      rating: 0,
-      numReviews: 0,
-      description: "sample description",
-    });
-    const createdProduct = await product.save();
-    res.send({ message: "Product Created", product: createdProduct });
+    let { name, image, price, category, brand, description } =
+      req.body.productInfo;
+    if (name && image && price && category && brand && description) {
+      const product = new Product({
+        name,
+        seller: req.user._id,
+        image,
+        price,
+        category,
+        brand,
+        countInStock: 0,
+        rating: 0,
+        numReviews: 0,
+        description,
+      });
+      const createdProduct = await product.save();
+      res.send({ message: "Product Created", product: createdProduct });
+    } else {
+      res.status(400).send({ message: "You Most file all " });
+    }
   })
 );
 productRouter.put(

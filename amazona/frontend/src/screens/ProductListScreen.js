@@ -17,13 +17,6 @@ export default function ProductListScreen(props) {
   const productList = useSelector((state) => state.productList);
   const { loading, error, products } = productList;
 
-  const productCreate = useSelector((state) => state.productCreate);
-  const {
-    loading: loadingCreate,
-    error: errorCreate,
-    success: successCreate,
-    product: createdProduct,
-  } = productCreate;
   const productDelete = useSelector((state) => state.productDelete);
   const {
     loading: loadingDelete,
@@ -34,22 +27,18 @@ export default function ProductListScreen(props) {
   const { userInfo } = userSignin;
   const dispatch = useDispatch();
   useEffect(() => {
-    if (successCreate) {
-      dispatch({ type: PRODUCT_CREATE_RESET });
-      props.history.push(`/product/${createdProduct._id}/edit`);
-    }
     if (successDelete) {
       dispatch({ type: PRODUCT_DELETE_RESET });
     }
     dispatch(listProducts({ seller: sellerMode ? userInfo._id : "" }));
-  }, [dispatch, successDelete, createdProduct, props.history, successCreate]);
+  }, [dispatch, successDelete, props.history]);
 
   const deleteHandler = (product) => {
     if (window.confirm("Are you sure you want to delete?"))
       dispatch(deleteProduct(product._id));
   };
   const createHandler = () => {
-    dispatch(createProduct());
+    props.history.push(`/postproduct`);
   };
   return (
     <div>
@@ -62,8 +51,6 @@ export default function ProductListScreen(props) {
       {loadingDelete && <LoadingBox></LoadingBox>}
       {errorDelete && <MessageBox variant="danger">{errorDelete}</MessageBox>}
 
-      {loadingCreate && <LoadingBox></LoadingBox>}
-      {errorCreate && <MessageBox variant="danger">{errorCreate}</MessageBox>}
       {loading ? (
         <LoadingBox></LoadingBox>
       ) : error ? (

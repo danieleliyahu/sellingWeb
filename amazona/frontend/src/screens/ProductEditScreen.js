@@ -112,7 +112,7 @@ export default function ProductEditScreen(props) {
               <label htmlFor="price">Price</label>
               <input
                 id="price"
-                type="text"
+                type="number"
                 placeholder="Enter price"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}></input>
@@ -170,7 +170,7 @@ export default function ProductEditScreen(props) {
               <textarea
                 id="description"
                 rows="3"
-                type="text"
+                type="number"
                 placeholder="Enter description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}></textarea>

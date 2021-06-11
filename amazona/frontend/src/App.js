@@ -226,7 +226,12 @@ function App() {
             component={DashboardScreen}></AdminRoute>
           <SellerRoute
             path="/productlist/seller"
-            component={ProductListScreen}></SellerRoute>
+            component={ProductListScreen}
+            exact></SellerRoute>
+          <SellerRoute
+            path="/productlist/seller/pageNumber/:pageNumber"
+            component={ProductListScreen}
+            exact></SellerRoute>
           <SellerRoute
             path="/orderlist/seller"
             component={OrderListScreen}></SellerRoute>

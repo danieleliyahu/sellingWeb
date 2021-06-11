@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams, Link } from "react-router-dom";
 import {
   createProduct,
   deleteProduct,
@@ -13,9 +14,11 @@ import {
 } from "../constants/productConstants";
 
 export default function ProductListScreen(props) {
+  const { pageNumber = 1 } = useParams();
+
   const sellerMode = props.match.path.indexOf("/seller") >= 0;
   const productList = useSelector((state) => state.productList);
-  const { loading, error, products } = productList;
+  const { loading, error, products, page, pages } = productList;
 
   const productDelete = useSelector((state) => state.productDelete);
   const {
@@ -30,8 +33,10 @@ export default function ProductListScreen(props) {
     if (successDelete) {
       dispatch({ type: PRODUCT_DELETE_RESET });
     }
-    dispatch(listProducts({ seller: sellerMode ? userInfo._id : "" }));
-  }, [dispatch, successDelete, props.history]);
+    dispatch(
+      listProducts({ seller: sellerMode ? userInfo._id : "", pageNumber })
+    );
+  }, [dispatch, successDelete, props.history, pageNumber]);
 
   const deleteHandler = (product) => {
     if (window.confirm("Are you sure you want to delete?"))
@@ -39,6 +44,14 @@ export default function ProductListScreen(props) {
   };
   const createHandler = () => {
     props.history.push(`/postproduct`);
+  };
+  const getFilterUrl = (filter) => {
+    const filterPage = filter.page || pageNumber;
+    if (!window.location.pathname.includes("seller")) {
+      return `/productlist/pageNumber/${filterPage}`;
+    } else {
+      return `/productlist/seller/pageNumber/${filterPage}`;
+    }
   };
   return (
     <div>
@@ -96,6 +109,16 @@ export default function ProductListScreen(props) {
           </tbody>
         </table>
       )}
+      <div className="row center pagination">
+        {[...Array(pages).keys()].map((x) => (
+          <Link
+            className={x + 1 === page ? "active" : ""}
+            key={x + 1}
+            to={getFilterUrl({ page: x + 1 })}>
+            {x + 1}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

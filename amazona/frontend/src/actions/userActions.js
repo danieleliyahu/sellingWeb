@@ -24,6 +24,9 @@ import {
   USER_TOPSELLERS_LIST_REQUEST,
   USER_TOPSELLERS_LIST_SUCCESS,
   USER_TOPSELLERS_LIST_FAIL,
+  USER_REVIEW_CREATE_REQUEST,
+  USER_REVIEW_CREATE_SUCCESS,
+  USER_REVIEW_CREATE_FAIL,
 } from "../constants/userConstants";
 
 export const signin = (email, password) => async (dispatch) => {
@@ -185,5 +188,30 @@ export const listTopSellers = () => async (dispatch, getState) => {
         ? error.response.data.message
         : error.message;
     dispatch({ type: USER_TOPSELLERS_LIST_FAIL, payload: message });
+  }
+};
+export const userReview = (sellerId, review) => async (dispatch, getState) => {
+  dispatch({ type: USER_REVIEW_CREATE_REQUEST });
+  const {
+    userSignin: { userInfo },
+  } = getState();
+  try {
+    const { data } = await Axios.post(
+      `/api/users/${sellerId}/reviews`,
+      review,
+      {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      }
+    );
+    dispatch({
+      type: USER_REVIEW_CREATE_SUCCESS,
+      payload: data.review,
+    });
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    dispatch({ type: USER_REVIEW_CREATE_FAIL, payload: message });
   }
 };

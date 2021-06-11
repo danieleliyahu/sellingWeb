@@ -15,7 +15,6 @@ export default function ProductScreen(props) {
   const { loading, error, product } = productDetails;
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
-
   const productReviewCreate = useSelector((state) => state.productReviewCreate);
   const {
     loading: loadingReviewCreate,
@@ -48,6 +47,7 @@ export default function ProductScreen(props) {
       alert("Please enter comment and rating");
     }
   };
+
   return (
     <div>
       {loading ? (
@@ -91,7 +91,6 @@ export default function ProductScreen(props) {
                         {product.seller.seller.name}
                       </Link>
                     </h2>
-                    {console.log(product)}
                     <Rating
                       rating={product.seller.seller.rating}
                       numReviews={product.seller.seller.numReviews}></Rating>

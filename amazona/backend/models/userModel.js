@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
-
+const userReviewSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, unique: true },
+    comment: { type: String, required: true },
+    rating: { type: String, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -13,6 +22,7 @@ const userSchema = new mongoose.Schema(
       description: String,
       rating: { type: Number, default: 0, required: true },
       numReviews: { type: Number, default: 0, required: true },
+      reviews: [userReviewSchema],
     },
   },
   {

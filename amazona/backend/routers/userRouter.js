@@ -34,14 +34,31 @@ userRouter.post(
     const user = await User.findOne({ email: req.body.email });
     if (user) {
       if (bcrypt.compareSync(req.body.password, user.password)) {
-        res.send({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          isSeller: user.isSeller,
-          token: generateToken(user),
-        });
+        if (user.seller) {
+          res.send({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            isSeller: user.isSeller,
+            token: generateToken(user),
+            seller: {
+              name: user.seller.name,
+              logo: user.seller.logo,
+              description: user.seller.description,
+            },
+          });
+        } else {
+          res.send({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            isSeller: user.isSeller,
+            token: generateToken(user),
+          });
+        }
+
         return;
       }
     }
@@ -92,6 +109,7 @@ userRouter.post(
         token: generateToken(createdUser),
       });
     } else {
+      res.status(401).send({ message: "fill all the file" });
     }
   })
 );
@@ -99,6 +117,8 @@ userRouter.post(
 userRouter.get(
   "/:id",
   expressAsyncHandler(async (req, res) => {
+    console.log(req.params.id);
+
     const user = await User.findById(req.params.id);
     if (user) {
       res.send(user);
@@ -125,6 +145,7 @@ userRouter.put(
         user.password = bcrypt.hashSync(req.body.password, 8);
       }
       const updatedUser = await user.save();
+
       res.send({
         _id: updatedUser._id,
         name: updatedUser.name,
@@ -178,11 +199,51 @@ userRouter.put(
       //   req.body.isSeller === user.isSeller ? user.isSeller : req.body.isSeller;
       // user.isAdmin =
       //   req.body.isAdmin === user.isAdmin ? user.isAdmin : req.body.isAdmin;
-      user.isAdmin = Boolean(req.body.isSeller);
-      user.isSeller = Boolean(req.body.isSeller);
 
+      user.isAdmin = Boolean(req.body.isAdmin);
+      user.isSeller = Boolean(req.body.isSeller);
+      console.log(user.isSeller);
+      console.log(user.isAdmin);
       const updatedUser = await user.save();
       res.send({ message: "User Updated", user: updatedUser });
+    } else {
+      res.status(404).send({ message: "User Not Found" });
+    }
+  })
+);
+
+userRouter.post(
+  "/:id/reviews",
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (user) {
+      if (user.seller.reviews.find((x) => x.name === req.user.name)) {
+        return res
+          .status(400)
+          .send({ message: "You already submitted a review" });
+      }
+      const review = {
+        name: req.user.name,
+        rating: Number(req.body.rating),
+        comment: req.body.comment,
+      };
+
+      user.seller.reviews.push(review);
+      user.seller.numReviews = user.seller.reviews.length;
+      user.seller.rating =
+        user.seller.reviews.reduce((a, c) => Number(c.rating) + a, 0) /
+        user.seller.numReviews;
+
+      const updatedUser = await user.save();
+      console.log(updatedUser);
+      res.status(201).send({
+        message: "Review Created",
+        review:
+          updatedUser.seller.reviews[updatedUser.seller.reviews.length - 1],
+      });
     } else {
       res.status(404).send({ message: "User Not Found" });
     }

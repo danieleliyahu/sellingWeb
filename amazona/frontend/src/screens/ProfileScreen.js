@@ -14,9 +14,9 @@ const ProfileScreen = () => {
   const [sellerDescription, setSellerDescription] = useState("");
 
   const userSignin = useSelector((state) => state.userSignin);
-  const { userInfo } = userSignin;
-  const userDetails = useSelector((state) => state.userDetails);
-  const { loading, error, user } = userDetails;
+  const { userInfo, loading, error } = userSignin;
+  // const userDetails = useSelector((state) => state.userDetails);
+  // const { loading, error, user } = userDetails;
   const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
   const {
     success: successUpdate,
@@ -25,19 +25,19 @@ const ProfileScreen = () => {
   } = userUpdateProfile;
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!user) {
+    if (!userInfo) {
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
       dispatch(detailsUser(userInfo._id));
     } else {
       setName(userInfo.name);
       setEmail(userInfo.email);
     }
-    if (user) {
-      setSellerName(user.seller.name);
-      setSellerLogo(user.seller.logo);
-      setSellerDescription(user.seller.description);
+    if (userInfo.seller) {
+      setSellerName(userInfo.seller.name);
+      setSellerLogo(userInfo.seller.logo);
+      setSellerDescription(userInfo.seller.description);
     }
-  }, [dispatch, userInfo._id, user]);
+  }, [dispatch, userInfo._id, userInfo]);
   const submitHandler = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -45,7 +45,7 @@ const ProfileScreen = () => {
     } else {
       dispatch(
         updateUserProfile({
-          userId: user._id,
+          userId: userInfo._id,
           name,
           email,
           password,
@@ -111,7 +111,7 @@ const ProfileScreen = () => {
                 placeholder="Enter confirm Password"
                 onChange={(e) => setConfirmPassword(e.target.value)}></input>
             </div>
-            {user.isSeller && (
+            {userInfo.isSeller && (
               <>
                 <h2>Seller</h2>
                 <div>

@@ -28,6 +28,10 @@ import {
   USER_TOPSELLERS_LIST_REQUEST,
   USER_TOPSELLERS_LIST_SUCCESS,
   USER_TOPSELLERS_LIST_FAIL,
+  USER_REVIEW_CREATE_REQUEST,
+  USER_REVIEW_CREATE_SUCCESS,
+  USER_REVIEW_CREATE_FAIL,
+  USER_REVIEW_CREATE_RESET,
 } from "../constants/userConstants";
 
 export const userSigninReducer = (state = {}, action) => {
@@ -140,6 +144,21 @@ export const userTopSellersListReducer = (
       return { loading: false, users: action.payload };
     case USER_TOPSELLERS_LIST_FAIL:
       return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const userReviewCreateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_REVIEW_CREATE_REQUEST:
+      return { loading: true };
+    case USER_REVIEW_CREATE_SUCCESS:
+      return { loading: false, success: true, review: action.payload };
+    case USER_REVIEW_CREATE_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_REVIEW_CREATE_RESET:
+      return {};
     default:
       return state;
   }

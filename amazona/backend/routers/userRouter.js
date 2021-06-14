@@ -42,59 +42,50 @@ userRouter.get(
 userRouter.post(
   "/signin",
   expressAsyncHandler(async (req, res) => {
-    // try {
-    //   const user = await User.findOne({ email: req.body.email });
-    //   if (!user) {
-    //     return res.status(401).send({ message: "Invalid email or password" });
-    //   }
-    //   const isMatch = bcrypt.compareSync(req.body.password, user.password);
-    //   if (!isMatch) {
-    //     return res.status(401).send({ message: "Invalid email or password" });
-    //   }
-    //   const refresh_token = createRefreshToken({ id: user._id });
-    //   res.cookie("refreshtoken", refresh_token, {
-    //     httpOnly: true,
-    //     path: "/api/users/refresh_token",
-    //     maxAge: 7 * 24 * 60 * 60 * 1000,
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        return res.status(401).send({ message: "Invalid email or password" });
+      }
+      const isMatch = bcrypt.compareSync(req.body.password, user.password);
+      if (!isMatch) {
+        return res.status(401).send({ message: "Invalid email or password" });
+      }
+      const refresh_token = createRefreshToken({ id: user._id });
+      res.cookie("refreshtoken", refresh_token, {
+        httpOnly: true,
+        path: "/api/users/refresh_token",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.send({ message: "Login success!" });
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
+    }
+
+    // if (user.isSeller) {
+    //   res.send({
+    //     _id: user._id,
+    //     name: user.name,
+    //     email: user.email,
+    //     isAdmin: user.isAdmin,
+    //     isSeller: user.isSeller,
+    //     token: generateToken(user),
+    //     seller: {
+    //       name: user.seller.name,
+    //       logo: user.seller.logo,
+    //       description: user.seller.description,
+    //     },
     //   });
-    //   res.send({ message: "Login success!" });
-    // } catch (err) {
-    //   return res.status(500).send({ message: err.message });
+    // } else {
+    //   res.send({
+    //     _id: user._id,
+    //     name: user.name,
+    //     email: user.email,
+    //     isAdmin: user.isAdmin,
+    //     isSeller: user.isSeller,
+    //     token: generateToken(user),
+    //   });
     // }
-
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) {
-      return res.status(401).send({ message: "Invalid email or password" });
-    }
-    const isMatch = bcrypt.compareSync(req.body.password, user.password);
-    if (!isMatch) {
-      return res.status(401).send({ message: "Invalid email or password" });
-    }
-
-    if (user.isSeller) {
-      res.send({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        isSeller: user.isSeller,
-        token: generateToken(user),
-        seller: {
-          name: user.seller.name,
-          logo: user.seller.logo,
-          description: user.seller.description,
-        },
-      });
-    } else {
-      res.send({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        isSeller: user.isSeller,
-        token: generateToken(user),
-      });
-    }
   })
 );
 
@@ -114,24 +105,33 @@ userRouter.post("/refresh_token", (req, res) => {
 });
 
 userRouter.post("/forgot", async (req, res) => {
+  const { CLIENT_URL } = process.env;
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user)
       return res.status(401).send({ message: "This email does not exist" });
     const access_token = createAccessToken({ id: user._id });
+    const url = `${CLIENT_URL}/user/reset/${access_token}`;
     sendMail(email, url, "Reset your password");
     res.json({ message: "Re-send the password,please check your email." });
   } catch (err) {
     return res.status(500).send({ message: err.message });
   }
 });
-userRouter.post,
+userRouter.post(
+  "/reset",
   isAuth,
-  expressAsyncHandler("/", async (req, res) => {
+  expressAsyncHandler(async (req, res) => {
     try {
       const { password } = req.body;
-      passwordValidate(password);
+      if (!passwordValidate(password)) {
+        return res.status(401).send({
+          message:
+            "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+        });
+      }
+
       const passwordHash = await bcrypt.hash(password, 8);
       await User.findOneAndUpdate(
         { _id: req.user.id },
@@ -143,7 +143,8 @@ userRouter.post,
     } catch (err) {
       return res.status(500).send({ message: err.message });
     }
-  });
+  })
+);
 userRouter.post(
   "/register",
   expressAsyncHandler(async (req, res) => {
@@ -162,7 +163,12 @@ userRouter.post(
     //       "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
     //   });
     // }
-    passwordValidate(password);
+    if (passwordValidate(password)) {
+      return res.status(401).send({
+        message:
+          "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+      });
+    }
 
     if (!validateEmail(email)) {
       return res.status(401).send({ message: "invalid email" });
@@ -188,27 +194,27 @@ userRouter.post(
 
         password: bcrypt.hashSync(req.body.password, 8),
       };
-      const user = new User({
-        userInfo,
-      });
-      // const activation_token = createActivationToken(userInfo);
-      // const url = `${process.env.CLIENT_URL}api/users/activate/${activation_token}`;
-      // sendMail(email, url, "Verify your email address");
-      // console.log(activation_token);
-
-      // res.send({
-      //   message: "Register Success! Please activate your email to start.",
+      // const user = new User({
+      //   userInfo
       // });
+      const activation_token = createActivationToken(userInfo);
+      const url = `${process.env.CLIENT_URL}api/users/activate/${activation_token}`;
+      sendMail(email, url, "Verify your email address");
+      console.log(activation_token);
 
-      const createdUser = await user.save();
       res.send({
-        _id: createdUser._id,
-        name: createdUser.name,
-        email: createdUser.email,
-        isAdmin: createdUser.isAdmin,
-        isSeller: user.isSeller,
-        token: generateToken(createdUser),
+        message: "Register Success! Please activate your email to start.",
       });
+
+      // const createdUser = await user.save();
+      // res.send({
+      //   _id: createdUser._id,
+      //   name: createdUser.name,
+      //   email: createdUser.email,
+      //   isAdmin: createdUser.isAdmin,
+      //   isSeller: user.isSeller,
+      //   token: generateToken(createdUser),
+      // });
     } else if (name && email && password) {
       const userInfo = {
         name,
@@ -216,23 +222,23 @@ userRouter.post(
         password: bcrypt.hashSync(req.body.password, 8),
       };
       const user = new User(userInfo);
-      // console.log(user);
-      // const activation_token = createActivationToken(userInfo);
-      // const url = `${process.env.CLIENT_URL}api/users/activate/${activation_token}`;
-      // sendMail(email, url, "Verify your email address");
-      // console.log(activation_token);
-      const createdUser = await user.save();
-      res.send({
-        _id: createdUser._id,
-        name: createdUser.name,
-        email: createdUser.email,
-        isAdmin: createdUser.isAdmin,
-        isSeller: user.isSeller,
-        token: generateToken(createdUser),
-      });
+      console.log(user);
+      const activation_token = createActivationToken(userInfo);
+      const url = `${process.env.CLIENT_URL}api/users/activate/${activation_token}`;
+      sendMail(email, url, "Verify your email address");
+      console.log(activation_token);
+      // const createdUser = await user.save();
       // res.send({
-      //   message: "Register Success! Please activate your email to start.",
+      //   _id: createdUser._id,
+      //   name: createdUser.name,
+      //   email: createdUser.email,
+      //   isAdmin: createdUser.isAdmin,
+      //   isSeller: user.isSeller,
+      //   token: generateToken(createdUser),
       // });
+      res.send({
+        message: "Register Success! Please activate your email to start.",
+      });
     } else {
       res.status(401).send({ message: "Please fill in all fields" });
     }

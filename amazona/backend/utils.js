@@ -20,12 +20,10 @@ export const generateToken = (user) => {
 };
 export const passwordValidate = (password) => {
   let re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-  let passwordValidate = re.test(String(password));
-  if (password.length < 8 || !passwordValidate) {
-    return res.status(401).send({
-      message:
-        "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
-    });
+  let Validate = re.test(String(password));
+  console.log(Validate, "ffffffffffffffffffffffffffffffffffffffff");
+  if (password.length < 8 || !Validate) {
+    return false;
   } else {
     return true;
   }
@@ -52,11 +50,13 @@ export const createRefreshToken = (payload) => {
 
 export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
+
   if (authorization) {
     const token = authorization.slice(7, authorization.length);
+
     jwt.verify(
       token,
-      process.env.JWT_SECRET || "danieleliyho",
+      process.env.ACCESS_TOKEN_SECRET || "danieleliyho",
       (err, decode) => {
         if (err) {
           res.status(401).send({ message: "Invalid Token" });

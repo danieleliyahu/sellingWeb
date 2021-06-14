@@ -11,9 +11,22 @@ const userReviewSchema = new mongoose.Schema(
 );
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    name: {
+      type: String,
+      required: [true, "Please enter your name!"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Please enter your email!"],
+      trim: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Please enter your password!"],
+      trim: true,
+    },
     isAdmin: { type: Boolean, default: false, required: true },
     isSeller: { type: Boolean, default: false, required: true },
     seller: {

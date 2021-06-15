@@ -7,9 +7,12 @@ import orderRouter from "./routers/orderRouter.js";
 import dotenv from "dotenv";
 import path from "path";
 import uploadRouter from "./routers/uploadRouter.js";
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const app = express();
+app.use(cookieParser());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 mongoose.connect(process.env.MONGODB_URL || "mongodb://localhost/amazona", {

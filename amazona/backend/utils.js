@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import mg from "mailgun-js";
 import dotenv from "dotenv";
+import User from "./models/userModel.js";
 dotenv.config();
 
 export const generateToken = (user) => {
@@ -50,6 +51,7 @@ export const createRefreshToken = (payload) => {
 
 export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
+  console.log(authorization);
 
   if (authorization) {
     const token = authorization.slice(7, authorization.length);
@@ -68,19 +70,47 @@ export const isAuth = (req, res, next) => {
     );
   }
 };
-export const isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+export const isAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user.id });
+    if (!user.isAdmin) {
+      return res
+        .status(500)
+        .send({ message: "Admin resources access denied." });
+    }
+    ca;
     next();
-  } else {
-    res.status(401).send({ message: "Invalid Admin Token" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
+// export const isAdmin = (req, res, next) => {
+//   if (req.user && req.user.isAdmin) {
+//     next();
+//   } else {
+//     res.status(401).send({ message: "Invalid Admin Token" });
+//   }
+// };
 
-export const isSeller = (req, res, next) => {
-  if (req.user && req.user.isSeller) {
+// export const isSeller = (req, res, next) => {
+//   if (req.user && req.user.isSeller) {
+//     next();
+//   } else {
+//     res.status(401).send({ message: "Invalid Seller Token" });
+//   }
+// };
+export const isSeller = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user.id });
+    if (!user.isSeller) {
+      return res
+        .status(500)
+        .send({ message: "Admin resources access denied." });
+    }
+    ca;
     next();
-  } else {
-    res.status(401).send({ message: "Invalid Seller Token" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 export const isSellerOrAdmin = (req, res, next) => {

@@ -78,7 +78,6 @@ export const isAuth = (req, res, next) => {
           res.status(403).send({ message: "Invalid Token" });
         } else {
           req.user = decode;
-
           next();
         }
       }
@@ -86,6 +85,9 @@ export const isAuth = (req, res, next) => {
   }
 };
 export const isAdmin = async (req, res, next) => {
+  console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+  console.log(req.user);
+
   try {
     const user = await User.findOne({ _id: req.user.id });
     if (!user.isAdmin) {
@@ -93,7 +95,7 @@ export const isAdmin = async (req, res, next) => {
         .status(500)
         .send({ message: "Admin resources access denied." });
     }
-
+    console.log("sssssssssssssssssssssssssssssssssssssssssssssssss");
     next();
   } catch (err) {
     return res.status(500).send({ message: err.message });

@@ -98,7 +98,6 @@ userRouter.post(
         if (err) return res.status(400).json({ msg: "Please login now!" });
 
         const accessToken = createAccessToken({ id: user.id });
-        console.log(accessToken);
         res.cookie("accessToken", accessToken, {
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
@@ -128,6 +127,7 @@ userRouter.post(
     }
   })
 );
+
 userRouter.post(
   "/reset",
   isAuth,
@@ -161,13 +161,13 @@ userRouter.get(
   expressAsyncHandler(async (req, res) => {
     try {
       const user = await User.findById(req.user.id).select("-password");
-      console.log(user);
       res.send(user);
     } catch (err) {
       return res.status(500).send({ message: err.message });
     }
   })
 );
+
 userRouter.post(
   "/register",
   expressAsyncHandler(async (req, res) => {
@@ -233,7 +233,6 @@ userRouter.post(
       const activation_token = createActivationToken(userInfo);
       const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
       sendMail(email, url, "Verify your email address");
-      console.log(activation_token);
 
       res.send({
         message: "Register Success! Please activate your email to start.",
@@ -255,12 +254,9 @@ userRouter.post(
         email,
         password: bcrypt.hashSync(req.body.password, 8),
       };
-      const user = new User(userInfo);
-      console.log(user);
       const activation_token = createActivationToken(userInfo);
       const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
       sendMail(email, url, "Verify your email address");
-      console.log("ssssssssssssssssssssssss");
       // const createdUser = await user.save();
       // res.send({
       //   _id: createdUser._id,
@@ -278,26 +274,25 @@ userRouter.post(
     }
   })
 );
-userRouter.get("/", expressAsyncHandler, async (req, res) => {
-  try {
-    res.clearCookie("refreshtoken");
-    return res.send({ message: "Logged out." });
-  } catch (err) {
-    return res.status(500).send({ message: error.message });
-  }
-});
+userRouter.get(
+  "/allusers",
+  isAuth,
+  isAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const users = await User.find({}).select("-password");
+
+    res.send(users);
+  })
+);
 userRouter.post(
   "/activate",
   expressAsyncHandler(async (req, res) => {
     try {
       const { activation_token } = req.body;
-      console.log(activation_token);
-      // console.log(process.env.ACTIVATION_TOKEN_SECRET);
       const user = jwt.verify(
         activation_token,
         process.env.ACTIVATION_TOKEN_SECRET
       );
-      console.log(user);
 
       const check = await User.findOne({ email: user.email });
       if (check) {
@@ -350,8 +345,6 @@ userRouter.post(
 userRouter.get(
   "/:id",
   expressAsyncHandler(async (req, res) => {
-    console.log(req.params.id);
-
     const user = await User.findById(req.params.id);
     if (user) {
       res.send(user);
@@ -399,15 +392,6 @@ userRouter.put(
   })
 );
 
-userRouter.get(
-  "/",
-  isAuth,
-  isAdmin,
-  expressAsyncHandler(async (req, res) => {
-    const users = await User.find({}).select("-password");
-    res.send(users);
-  })
-);
 userRouter.delete(
   "/:id",
   isAuth,
@@ -437,8 +421,7 @@ userRouter.put(
 
       user.isAdmin = Boolean(req.body.isAdmin);
       user.isSeller = Boolean(req.body.isSeller);
-      console.log(user.isSeller);
-      console.log(user.isAdmin);
+
       const updatedUser = await user.save();
       res.send({ message: "User Updated", user: updatedUser });
     } else {
@@ -473,7 +456,6 @@ userRouter.post(
         user.seller.numReviews;
 
       const updatedUser = await user.save();
-      console.log(updatedUser);
       res.status(201).send({
         message: "Review Created",
         review:
@@ -484,4 +466,12 @@ userRouter.post(
     }
   })
 );
+userRouter.get("/", expressAsyncHandler, async (req, res) => {
+  try {
+    res.clearCookie("refreshtoken");
+    return res.send({ message: "Logged out." });
+  } catch (err) {
+    return res.status(500).send({ message: error.message });
+  }
+});
 export default userRouter;

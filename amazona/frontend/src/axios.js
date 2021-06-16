@@ -13,11 +13,11 @@ axios.interceptors.response.use(
   (res) => {
     console.log(res);
     // when signout
-    // if (res.data.success) {
-    //   Cookies.remove("accessToken");
-    //   Cookies.remove("refreshToken");
-    //   return res;
-    // }
+    if (res.data.success) {
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
+      return res;
+    }
     if (res.data.accessToken)
       Cookies.set("accessToken", res.data.accessToken, { expires: 1 });
     if (res.data.refreshToken)

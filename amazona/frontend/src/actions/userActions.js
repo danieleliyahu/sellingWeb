@@ -1,3 +1,4 @@
+import Cookies from "js-cookie";
 import Axios from "../axios.js";
 import {
   USER_DETAILS_FAIL,
@@ -146,6 +147,7 @@ export const signout = () => (dispatch) => {
   localStorage.removeItem("userInfo");
   localStorage.removeItem("cartItems");
   localStorage.removeItem("shippingAddress");
+
   dispatch({ type: USER_SIGNOUT });
   document.location.href = "/signin";
 };
@@ -195,8 +197,11 @@ export const listUsers = () => async (dispatch, getState) => {
   const {
     userSignin: { userInfo },
   } = getState();
+
   try {
-    const { data } = await Axios.get("/api/users");
+    const { data } = await Axios.get("/api/users/allusers");
+    console.log("data");
+
     dispatch({ type: USER_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -212,9 +217,7 @@ export const deleteUser = (userId) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.delete(`/api/users/${userId}`, {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = await Axios.delete(`/api/users/${userId}`);
     dispatch({ type: USER_DELETE_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -231,9 +234,7 @@ export const updateUser = (user) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.put(`/api/users/${user._id}`, user, {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = await Axios.put(`/api/users/${user._id}`, user);
     dispatch({ type: USER_UPDATE_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -248,7 +249,7 @@ export const listTopSellers = () => async (dispatch, getState) => {
   dispatch({ type: USER_TOPSELLERS_LIST_REQUEST });
 
   try {
-    const { data } = await Axios.get("api/users/top-sellers");
+    const { data } = await Axios.get("/api/users/top-sellers");
     dispatch({ type: USER_TOPSELLERS_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -264,13 +265,7 @@ export const userReview = (sellerId, review) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.post(
-      `/api/users/${sellerId}/reviews`,
-      review,
-      {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      }
-    );
+    const { data } = await Axios.post(`/api/users/${sellerId}/reviews`, review);
     dispatch({
       type: USER_REVIEW_CREATE_SUCCESS,
       payload: data.review,

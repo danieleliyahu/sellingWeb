@@ -1,4 +1,4 @@
-import Axios from "axios";
+import Axios from "../axios.js";
 import {
   USER_DETAILS_FAIL,
   USER_DETAILS_REQUEST,
@@ -27,7 +27,14 @@ import {
   USER_REVIEW_CREATE_REQUEST,
   USER_REVIEW_CREATE_SUCCESS,
   USER_REVIEW_CREATE_FAIL,
+  USER_ACTIVATE_REQUEST,
+  USER_ACTIVATE_SUCCESS,
+  USER_ACTIVATE_FAIL,
+  USER_INFO_REQUEST,
+  USER_INFO_SUCCESS,
+  USER_INFO_FAIL,
 } from "../constants/userConstants";
+import { passwordValidate, validateEmail } from "../utils";
 
 export const signin = (email, password) => async (dispatch) => {
   dispatch({ type: USER_SIGNIN_REQUEST, payload: { email, password } });
@@ -45,20 +52,83 @@ export const signin = (email, password) => async (dispatch) => {
     });
   }
 };
+export const userInformation = () => async (dispatch) => {
+  dispatch({ type: USER_INFO_REQUEST });
+  try {
+    const { data } = await Axios.get("/api/users/info");
+    dispatch({ type: USER_INFO_SUCCESS, payload: data });
+    console.log(data);
+    if (data === undefined) {
+      return dispatch({
+        type: USER_INFO_FAIL,
+      });
+    }
+    localStorage.setItem("userInfo", JSON.stringify(data));
+  } catch (error) {
+    dispatch({
+      type: USER_INFO_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+export const ActivateUser = (activation_token) => async (dispatch) => {
+  dispatch({ type: USER_ACTIVATE_REQUEST, payload: { activation_token } });
+  try {
+    const { data } = await Axios.post("/api/users/activate", {
+      activation_token,
+    });
+    dispatch({ type: USER_ACTIVATE_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: USER_ACTIVATE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
 export const register =
-  (name, email, password, sellerName, sellerLogo, sellerDescription) =>
+  (
+    name,
+    email,
+    password,
+    confirmPassword,
+    sellerName,
+    sellerLogo,
+    sellerDescription
+  ) =>
   async (dispatch) => {
     dispatch({ type: USER_REGISTER_REQUEST, payload: { email, password } });
+    console.log(password);
+    if (!passwordValidate(password)) {
+      return dispatch({
+        type: USER_REGISTER_FAIL,
+        payload:
+          "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+      });
+    }
+    if (!validateEmail(email)) {
+      return dispatch({
+        type: USER_REGISTER_FAIL,
+        payload: "email not valid",
+      });
+    }
     try {
       const { data } = await Axios.post("/api/users/register", {
         name,
         email,
         password,
+        confirmPassword,
         sellerName,
         sellerLogo,
         sellerDescription,
       });
-      dispatch({ type: USER_REGISTER_SUCCESS, payload: data });
+      console.log(data.message);
+      dispatch({ type: USER_REGISTER_SUCCESS, payload: data.message });
       dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
       localStorage.setItem("userInfo", JSON.stringify(data));
     } catch (error) {
@@ -126,9 +196,7 @@ export const listUsers = () => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.get("api/users", {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = await Axios.get("/api/users");
     dispatch({ type: USER_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =

@@ -48,14 +48,11 @@ userRouter.post(
       if (!user) {
         return res.status(401).send({ message: "Invalid email or password" });
       }
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(req.body.password, user.password);
       if (!isMatch)
         return res.status(400).json({ msg: "Password is incorrect." });
-
       const refresh_token = createRefreshToken({ id: user._id });
-      res.cookie("refreshtoken", refresh_token, {
-        httpOnly: true,
-        path: "/user/refresh_token",
+      res.cookie("refreshToken", refresh_token, {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.json({ message: "Login success!" });
@@ -94,14 +91,18 @@ userRouter.post(
   "/refresh_token",
   expressAsyncHandler((req, res) => {
     try {
-      const rf_token = req.cookies.refreshtoken;
+      const rf_token = req.cookies.refreshToken;
       if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
 
       jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(400).json({ msg: "Please login now!" });
 
-        const access_token = createAccessToken({ id: user.id });
-        res.json({ access_token });
+        const accessToken = createAccessToken({ id: user.id });
+        console.log(accessToken);
+        res.cookie("accessToken", accessToken, {
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+        res.json({ message: "Login success!" });
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -160,6 +161,7 @@ userRouter.get(
   expressAsyncHandler(async (req, res) => {
     try {
       const user = await User.findById(req.user.id).select("-password");
+      console.log(user);
       res.send(user);
     } catch (err) {
       return res.status(500).send({ message: err.message });
@@ -169,9 +171,15 @@ userRouter.get(
 userRouter.post(
   "/register",
   expressAsyncHandler(async (req, res) => {
-    console.log(req.body);
-    const { name, email, sellerName, password, sellerLogo, sellerDescription } =
-      req.body;
+    const {
+      name,
+      email,
+      sellerName,
+      confirmPassword,
+      password,
+      sellerLogo,
+      sellerDescription,
+    } = req.body;
     const existsUser = await User.findOne({ email });
     if (existsUser) {
       return res.status(401).send({ message: "user already exists" });
@@ -184,13 +192,17 @@ userRouter.post(
     //       "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
     //   });
     // }
-    if (passwordValidate(password)) {
+    if (!passwordValidate(password)) {
       return res.status(401).send({
         message:
           "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
       });
     }
-
+    if (password !== confirmPassword) {
+      return res.status(401).send({
+        message: "Password and confirm Password dont match",
+      });
+    }
     if (!validateEmail(email)) {
       return res.status(401).send({ message: "invalid email" });
     }
@@ -219,12 +231,13 @@ userRouter.post(
       //   userInfo
       // });
       const activation_token = createActivationToken(userInfo);
-      const url = `${process.env.CLIENT_URL}api/users/activate/${activation_token}`;
+      const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
       sendMail(email, url, "Verify your email address");
       console.log(activation_token);
 
       res.send({
         message: "Register Success! Please activate your email to start.",
+        success: true,
       });
 
       // const createdUser = await user.save();
@@ -245,9 +258,9 @@ userRouter.post(
       const user = new User(userInfo);
       console.log(user);
       const activation_token = createActivationToken(userInfo);
-      const url = `${process.env.CLIENT_URL}api/users/activate/${activation_token}`;
+      const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
       sendMail(email, url, "Verify your email address");
-      console.log(activation_token);
+      console.log("ssssssssssssssssssssssss");
       // const createdUser = await user.save();
       // res.send({
       //   _id: createdUser._id,
@@ -267,7 +280,7 @@ userRouter.post(
 );
 userRouter.get("/", expressAsyncHandler, async (req, res) => {
   try {
-    res.clearCookie("refreshtoken", { path: "/api/users/refresh_token" });
+    res.clearCookie("refreshtoken");
     return res.send({ message: "Logged out." });
   } catch (err) {
     return res.status(500).send({ message: error.message });
@@ -352,38 +365,37 @@ userRouter.put(
   isAuth,
   expressAsyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
-    if (user) {
-      user.name = req.body.name || user.name;
-      user.email = req.body.email || user.email;
-      if (user.isSeller) {
-        user.seller.name = req.body.sellerName || user.seller.name;
-        user.seller.description =
-          req.body.sellerDescription || user.seller.description;
-        user.seller.logo = req.body.sellerLogo || user.seller.logo;
-      }
-      if (req.body.password) {
-        if (!passwordValidate(req.body.password)) {
-          return res
-            .status(500)
-            .send({
-              message:
-                "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
-            });
-        }
-
-        user.password = bcrypt.hashSync(req.body.password, 8);
-      }
-      const updatedUser = await user.save();
-
-      res.send({
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        isAdmin: updatedUser.isAdmin,
-        isSeller: user.isSeller,
-        token: generateToken(updatedUser),
-      });
+    if (!user) {
+      return res.status(401).send({ message: "You are not signed in" });
     }
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    if (user.isSeller) {
+      user.seller.name = req.body.sellerName || user.seller.name;
+      user.seller.description =
+        req.body.sellerDescription || user.seller.description;
+      user.seller.logo = req.body.sellerLogo || user.seller.logo;
+    }
+    if (req.body.password) {
+      if (!passwordValidate(req.body.password)) {
+        return res.status(500).send({
+          message:
+            "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+        });
+      }
+
+      user.password = bcrypt.hashSync(req.body.password, 8);
+    }
+    const updatedUser = await user.save();
+    res.send({ message: "Update Success" });
+    // res.send({
+    //   _id: updatedUser._id,
+    //   name: updatedUser.name,
+    //   email: updatedUser.email,
+    //   isAdmin: updatedUser.isAdmin,
+    //   isSeller: user.isSeller,
+    //   token: generateToken(updatedUser),
+    // });
   })
 );
 
@@ -396,21 +408,15 @@ userRouter.get(
     res.send(users);
   })
 );
-
 userRouter.delete(
   "/:id",
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
-    const user = await User.findById(req.params.id);
-    if (user) {
-      if (user.email === "admin@example.com") {
-        res.status(400).send({ message: "Can Not Delete Admin User" });
-        return;
-      }
-      const deleteUser = await user.remove();
-      res.send({ message: "User Deleted", user: deleteUser });
-    } else {
+    try {
+      await User.findByIdAndDelete(req.params.id);
+      res.send({ message: "User Deleted" });
+    } catch (err) {
       res.status(404).send({ message: "User Not Found" });
     }
   })

@@ -113,7 +113,7 @@ productRouter.post(
     if (name && image && price && category && brand && description) {
       const product = new Product({
         name,
-        seller: req.user._id,
+        seller: req.user.id,
         image,
         price,
         category,

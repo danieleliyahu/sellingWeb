@@ -11,8 +11,10 @@ import {
 } from "./reducers/productReducers";
 import { cartReducer } from "./reducers/cartReducers";
 import {
+  userActivateReducer,
   userDeleteReducer,
   userDetailsReducer,
+  userInformationReducer,
   userListReducer,
   userRegisterReducer,
   userReviewCreateReducer,
@@ -31,6 +33,7 @@ import {
   orderPayReducer,
   orderSummaryReducer,
 } from "./reducers/orderReducers";
+
 const initialState = {
   userSignin: {
     userInfo: localStorage.getItem("userInfo")
@@ -73,6 +76,8 @@ const reducer = combineReducers({
   productReviewCreate: productReviewCreateReducer,
   orderSummary: orderSummaryReducer,
   userReviewCreate: userReviewCreateReducer,
+  userActivate: userActivateReducer,
+  userInformation: userInformationReducer,
 });
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

@@ -32,6 +32,12 @@ import {
   USER_REVIEW_CREATE_SUCCESS,
   USER_REVIEW_CREATE_FAIL,
   USER_REVIEW_CREATE_RESET,
+  USER_ACTIVATE_REQUEST,
+  USER_ACTIVATE_SUCCESS,
+  USER_ACTIVATE_FAIL,
+  USER_INFO_FAIL,
+  USER_INFO_SUCCESS,
+  USER_INFO_REQUEST,
 } from "../constants/userConstants";
 
 export const userSigninReducer = (state = {}, action) => {
@@ -48,19 +54,46 @@ export const userSigninReducer = (state = {}, action) => {
       return state;
   }
 };
-export const userRegisterReducer = (state = {}, action) => {
+
+export const userInformationReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_INFO_REQUEST:
+      return { loading: true };
+    case USER_INFO_SUCCESS:
+      return { loading: false, userInfo: action.payload };
+    case USER_INFO_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_SIGNOUT:
+      return {};
+    default:
+      return state;
+  }
+};
+export const userRegisterReducer = (state = {}, action, success = false) => {
   switch (action.type) {
     case USER_REGISTER_REQUEST:
       return { loading: true };
     case USER_REGISTER_SUCCESS:
-      return { loading: false, userInfo: action.payload };
+      return { loading: false, userInfo: action.payload, success: true };
     case USER_REGISTER_FAIL:
-      return { loading: false, error: action.payload };
+      return { loading: false, error: action.payload, success: false };
     default:
       return state;
   }
 };
 
+export const userActivateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_ACTIVATE_REQUEST:
+      return { loading: true };
+    case USER_ACTIVATE_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case USER_ACTIVATE_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
 export const userDetailsReducer = (state = { loading: true }, action) => {
   switch (action.type) {
     case USER_DETAILS_REQUEST:

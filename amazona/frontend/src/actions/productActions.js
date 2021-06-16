@@ -1,4 +1,5 @@
-import Axios from "axios";
+import Axios from "../axios.js";
+
 import {
   PRODUCT_CREATE_FAIL,
   PRODUCT_CREATE_REQUEST,
@@ -87,13 +88,7 @@ export const createProduct = (productInfo) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.post(
-      "/api/products",
-      { productInfo },
-      {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      }
-    );
+    const { data } = await Axios.post("/api/products", { productInfo });
     dispatch({
       type: PRODUCT_CREATE_SUCCESS,
       payload: data.product,
@@ -112,9 +107,7 @@ export const updateProduct = (product) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.put(`/api/products/${product._id}`, product, {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = await Axios.put(`/api/products/${product._id}`, product);
     dispatch({ type: PRODUCT_UPDATE_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -130,9 +123,7 @@ export const deleteProduct = (productId) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = Axios.delete(`/api/products/${productId}`, {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = Axios.delete(`/api/products/${productId}`);
     dispatch({ type: PRODUCT_DELETE_SUCCESS });
   } catch (error) {
     const message =
@@ -151,10 +142,7 @@ export const createReview =
     try {
       const { data } = await Axios.post(
         `/api/products/${productId}/reviews`,
-        review,
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        }
+        review
       );
       dispatch({
         type: PRODUCT_REVIEW_CREATE_SUCCESS,

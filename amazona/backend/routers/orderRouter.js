@@ -33,8 +33,9 @@ orderRouter.get(
   "/mine",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    console.log("asdsa");
-    const orders = await Order.find({ user: req.user._id });
+    const orders = await Order.find({ user: req.user.id });
+    console.log(orders);
+
     res.send(orders);
   })
 );
@@ -80,7 +81,7 @@ orderRouter.get(
         },
       },
     ]);
-
+    console.log(productCategories, dailyOrders, users, orders);
     res.send({ productCategories, dailyOrders, users, orders });
   })
 );
@@ -88,6 +89,7 @@ orderRouter.post(
   "/",
   isAuth,
   expressAsyncHandler(async (req, res) => {
+    console.log(req.user);
     if (req.body.orderItems.length === 0) {
       res.status(400).send({ message: "Cart is empty" });
     } else {
@@ -100,9 +102,11 @@ orderRouter.post(
         shippingPrice: req.body.shippingPrice,
         taxPrice: req.body.taxPrice,
         totalPrice: req.body.totalPrice,
-        user: req.user._id,
+        user: req.user.id,
       });
+
       const createdOrder = await order.save();
+      console.log(createdOrder);
       res
         .status(201)
         .send({ message: "New Order Created", order: createdOrder });
@@ -114,7 +118,8 @@ orderRouter.get(
   "/:id",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.user.id);
+
     if (order) {
       res.send(order);
     } else {

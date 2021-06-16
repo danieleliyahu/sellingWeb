@@ -49,41 +49,6 @@ export const createRefreshToken = (payload) => {
   });
 };
 
-export const isAuth = (req, res, next) => {
-  const authorization = req.headers.authorization;
-  console.log(authorization);
-
-  if (authorization) {
-    const token = authorization.slice(7, authorization.length);
-
-    jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET || "danieleliyho",
-      (err, decode) => {
-        if (err) {
-          res.status(401).send({ message: "Invalid Token" });
-        } else {
-          req.user = decode;
-          next();
-        }
-      }
-    );
-  }
-};
-export const isAdmin = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ _id: req.user.id });
-    if (!user.isAdmin) {
-      return res
-        .status(500)
-        .send({ message: "Admin resources access denied." });
-    }
-    ca;
-    next();
-  } catch (err) {
-    return res.status(500).send({ message: err.message });
-  }
-};
 // export const isAdmin = (req, res, next) => {
 //   if (req.user && req.user.isAdmin) {
 //     next();
@@ -99,6 +64,41 @@ export const isAdmin = async (req, res, next) => {
 //     res.status(401).send({ message: "Invalid Seller Token" });
 //   }
 // };
+export const isAuth = (req, res, next) => {
+  const authorization = req.headers.authorization;
+
+  if (authorization) {
+    const token = authorization.slice(7, authorization.length);
+
+    jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET || "danieleliyho",
+      (err, decode) => {
+        if (err) {
+          res.status(403).send({ message: "Invalid Token" });
+        } else {
+          req.user = decode;
+
+          next();
+        }
+      }
+    );
+  }
+};
+export const isAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user.id });
+    if (!user.isAdmin) {
+      return res
+        .status(500)
+        .send({ message: "Admin resources access denied." });
+    }
+
+    next();
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
+  }
+};
 export const isSeller = async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: req.user.id });
@@ -113,8 +113,9 @@ export const isSeller = async (req, res, next) => {
     return res.status(500).send({ message: err.message });
   }
 };
-export const isSellerOrAdmin = (req, res, next) => {
-  if ((req.user && req.user.isSeller) || req.user.isAdmin) {
+export const isSellerOrAdmin = async (req, res, next) => {
+  const user = await User.findOne({ _id: req.user.id });
+  if ((user && user.isSeller) || user.isAdmin) {
     next();
   } else {
     res.status(401).send({ message: "Invalid Admin/Seller Token" });

@@ -1,6 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import { BrowserRouter, Link, Route } from "react-router-dom";
-import { signout } from "./actions/userActions";
+import {
+  BrowserRouter,
+  Link,
+  Route,
+  Router,
+  useHistory,
+} from "react-router-dom";
+import { signout, userInformation } from "./actions/userActions";
 import CartScreen from "./screens/CartScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProductScreen from "./screens/ProductScreen";
@@ -29,23 +35,40 @@ import LoadingBox from "./components/LoadingBox";
 import MessageBox from "./components/MessageBox";
 import DashboardScreen from "./screens/DashboardScreen";
 import ProductPostScreen from "./screens/ProductPostScreen";
+import UserActivateScreen from "./screens/UserActivateScreen";
+import Axios from "axios";
+import {
+  dispatchGetUser,
+  dispatchLogin,
+  fetchUser,
+} from "./actions/tokenActions";
+import Cookies from "js-cookie";
 
 function App() {
   const cart = useSelector((state) => state.cart);
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
   const { cartItems } = cart;
-  const userSignin = useSelector((state) => state.userSignin);
+  const userSignin = useSelector((state) => state.userInformation);
   const { userInfo } = userSignin;
   const dispatch = useDispatch();
+  const history = useHistory();
+
   const signoutHandler = () => {
     dispatch(signout());
   };
+
   const productCategoryList = useSelector((state) => state.productCategoryList);
   const {
     loading: loadingCategories,
     error: errorCategories,
     categories,
   } = productCategoryList;
+
+  useEffect(() => {
+    console.log(userInfo);
+
+    dispatch(userInformation());
+  }, []);
   useEffect(() => {
     dispatch(listProductCategories());
   }, [dispatch]);
@@ -186,6 +209,9 @@ function App() {
           <Route path="/placeorder" component={PlaceOrderScreen}></Route>
           <Route path="/order/:id" component={OrderScreen}></Route>
           <Route path="/orderhistory" component={OrderHistoryScreen}></Route>
+          <Route
+            path="/user/activate/:activation_token"
+            component={UserActivateScreen}></Route>
           <Route
             path="/search/name/:name?"
             component={SearchScreen}

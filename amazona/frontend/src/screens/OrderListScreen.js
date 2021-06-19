@@ -31,6 +31,7 @@ export default function OrderListScreen(props) {
   return (
     <div>
       <h1>Orders</h1>
+      {console.log(orderList)}
       {loadingDelete && <LoadingBox></LoadingBox>}
       {errorDelete && <MessageBox variant="danger">{errorDelete}</MessageBox>}
       {loading ? (
@@ -51,7 +52,7 @@ export default function OrderListScreen(props) {
             </tr>
           </thead>
           <tbody>
-            {console.log(orders.user)}
+            {}
             {orders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id}</td>

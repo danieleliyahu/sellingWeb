@@ -49,7 +49,8 @@ function App() {
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
   const { cartItems } = cart;
   const userSignin = useSelector((state) => state.userInformation);
-  const { userInfo } = userSignin;
+  const { userInfo, error } = userSignin;
+  console.log(userSignin);
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -63,15 +64,30 @@ function App() {
     error: errorCategories,
     categories,
   } = productCategoryList;
+  console.log(userSignin && userSignin);
+  // if (userInfo && userInfo.message === "Login success!") {
+  //   console.log("hi");
+  //   Axios.post("/api/users/refresh_token");
+  //   dispatch(userInformation());
+  // }
+  useEffect(async () => {
+    console.log("11111");
 
-  useEffect(() => {
-    console.log(userInfo);
-
+    await Axios.post("/api/users/refresh_token");
+    console.log("22222");
     dispatch(userInformation());
-  }, []);
+    console.log("33333");
+  }, [dispatch]);
+
+  // useEffect(() => {
+  //   if (userInfo) {
+  //
+  //   }
+  // }, [error]);
   useEffect(() => {
     dispatch(listProductCategories());
   }, [dispatch]);
+
   return (
     <BrowserRouter>
       <div className="grid-container">

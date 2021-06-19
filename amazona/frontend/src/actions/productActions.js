@@ -77,8 +77,6 @@ export const detailsProduct = (productId) => async (dispatch) => {
   }
 };
 export const createProduct = (productInfo) => async (dispatch, getState) => {
-  console.log(dispatch);
-
   dispatch({
     type: PRODUCT_CREATE_REQUEST,
     payload: productInfo,

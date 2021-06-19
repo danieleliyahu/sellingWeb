@@ -46,16 +46,16 @@ userRouter.post(
     try {
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
-        return res.status(401).send({ message: "Invalid email or password" });
+        return res.status(403).send({ message: "Invalid email or password" });
       }
       const isMatch = await bcrypt.compare(req.body.password, user.password);
       if (!isMatch)
-        return res.status(400).json({ msg: "Password is incorrect." });
+        return res.status(403).json({ msg: "Password is incorrect." });
       const refresh_token = createRefreshToken({ id: user._id });
       res.cookie("refreshToken", refresh_token, {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      res.json({ message: "Login success!" });
+      res.send(user);
     } catch (err) {
       return res.status(500).send({ message: err.message });
     }
@@ -90,21 +90,35 @@ userRouter.post(
 userRouter.post(
   "/refresh_token",
   expressAsyncHandler((req, res) => {
+    console.log(req.cookies.refreshToken);
+
     try {
       const rf_token = req.cookies.refreshToken;
-      if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
+      if (!rf_token)
+        return res.status(403).json({ message: "Please login now!" });
 
-      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(400).json({ msg: "Please login now!" });
+      jwt.verify(
+        rf_token,
+        process.env.REFRESH_TOKEN_SECRET,
+        async (err, user) => {
+          if (err) {
+            console.log(err);
 
-        const accessToken = createAccessToken({ id: user.id });
-        res.cookie("accessToken", accessToken, {
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-        res.json({ message: "Login success!" });
-      });
+            return res.status(400).json({ message: "Please login now!" });
+          }
+
+          const accessToken = createAccessToken({ id: user.id });
+          res.cookie("accessToken", accessToken, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+          console.log(user, "sssssssssssssssssssssssssss");
+          const userInfo = await User.findOne({ _id: user.id });
+
+          res.json(userInfo);
+        }
+      );
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      return res.status(500).json({ message: err.message });
     }
   })
 );
@@ -161,6 +175,9 @@ userRouter.get(
   expressAsyncHandler(async (req, res) => {
     try {
       const user = await User.findById(req.user.id).select("-password");
+      // if (!user) {
+      //   res.status(403).send();
+      // }
       res.send(user);
     } catch (err) {
       return res.status(500).send({ message: err.message });

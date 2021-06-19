@@ -22,7 +22,6 @@ export const generateToken = (user) => {
 export const passwordValidate = (password) => {
   let re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
   let Validate = re.test(String(password));
-  console.log(Validate, "ffffffffffffffffffffffffffffffffffffffff");
   if (password.length < 8 || !Validate) {
     return false;
   } else {
@@ -30,15 +29,11 @@ export const passwordValidate = (password) => {
   }
 };
 export const createActivationToken = (payload) => {
-  console.log(payload, process.env.ACTIVATION_TOKEN_SECRET);
   return jwt.sign(payload, process.env.ACTIVATION_TOKEN_SECRET, {
     expiresIn: "5m",
   });
 };
 export const createAccessToken = (user) => {
-  console.log(user, "user");
-  console.log(process.env.ACCESS_TOKEN_SECRET);
-
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "15m",
   });
@@ -66,7 +61,6 @@ export const createRefreshToken = (payload) => {
 // };
 export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
-
   if (authorization) {
     const token = authorization.slice(7, authorization.length);
 
@@ -75,6 +69,7 @@ export const isAuth = (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRET || "danieleliyho",
       (err, decode) => {
         if (err) {
+          console.log(err);
           res.status(403).send({ message: "Invalid Token" });
         } else {
           req.user = decode;
@@ -82,12 +77,11 @@ export const isAuth = (req, res, next) => {
         }
       }
     );
+  } else {
+    res.status(403).send({ message: "Not allowed" });
   }
 };
 export const isAdmin = async (req, res, next) => {
-  console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-  console.log(req.user);
-
   try {
     const user = await User.findOne({ _id: req.user.id });
     if (!user.isAdmin) {
@@ -95,7 +89,6 @@ export const isAdmin = async (req, res, next) => {
         .status(500)
         .send({ message: "Admin resources access denied." });
     }
-    console.log("sssssssssssssssssssssssssssssssssssssssssssssssss");
     next();
   } catch (err) {
     return res.status(500).send({ message: err.message });

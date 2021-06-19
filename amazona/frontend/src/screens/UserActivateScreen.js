@@ -8,7 +8,6 @@ import { ActivateUser } from "../actions/userActions";
 const UserActivateScreen = () => {
   const { activation_token } = useParams();
 
-  console.log(activation_token);
   const userActivate = useSelector((state) => state.userActivate);
   const { loading, error, success, message } = userActivate;
   const dispatch = useDispatch();

@@ -8,8 +8,6 @@ import Axios from "../axios.js";
 import { validateEmail } from "../utils";
 import { set } from "mongoose";
 const RegisterScreen = (props) => {
-  console.log(window.location.href);
-  console.log(window.location.pathname);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,7 +47,6 @@ const RegisterScreen = (props) => {
     }
   };
   useEffect(() => {
-    console.log(success);
     if (success) {
       setName("");
       setEmail("");
@@ -68,7 +65,7 @@ const RegisterScreen = (props) => {
     setLoadingUpload(true);
     try {
       const { data } = await Axios.post("/api/uploads/logo", bodyFormData, {});
-      console.log(data);
+
       setSellerLogo(data);
       setLoadingUpload(false);
     } catch (error) {

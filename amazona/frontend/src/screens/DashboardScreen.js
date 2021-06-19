@@ -8,6 +8,7 @@ import MessageBox from "../components/MessageBox";
 const DashboardScreen = () => {
   const orderSummary = useSelector((state) => state.orderSummary);
   const { loading, summary, error } = orderSummary;
+  console.log(orderSummary);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(summaryOrder());

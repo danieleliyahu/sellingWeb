@@ -190,7 +190,6 @@ productRouter.post(
       product.rating =
         product.reviews.reduce((a, c) => Number(c.rating) + a, 0) /
         product.numReviews;
-      console.log(product.rating);
 
       const updatedProduct = await product.save();
       res.status(201).send({

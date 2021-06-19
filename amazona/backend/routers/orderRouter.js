@@ -17,15 +17,14 @@ orderRouter.get(
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
-    console.log("Hi");
     const seller = req.query.seller || "";
     const sellerFilter = seller ? { seller } : {};
     const orders = await Order.find({ ...sellerFilter }).populate(
       "user",
       "name"
     );
-    console.log(orders);
-    // console.log(orders);
+
+    //
     res.send(orders);
   })
 );
@@ -34,7 +33,6 @@ orderRouter.get(
   isAuth,
   expressAsyncHandler(async (req, res) => {
     const orders = await Order.find({ user: req.user.id });
-    console.log(orders);
 
     res.send(orders);
   })
@@ -81,7 +79,7 @@ orderRouter.get(
         },
       },
     ]);
-    console.log(productCategories, dailyOrders, users, orders);
+
     res.send({ productCategories, dailyOrders, users, orders });
   })
 );
@@ -89,7 +87,6 @@ orderRouter.post(
   "/",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    console.log(req.user);
     if (req.body.orderItems.length === 0) {
       res.status(400).send({ message: "Cart is empty" });
     } else {
@@ -106,7 +103,7 @@ orderRouter.post(
       });
 
       const createdOrder = await order.save();
-      console.log(createdOrder);
+
       res
         .status(201)
         .send({ message: "New Order Created", order: createdOrder });
@@ -157,13 +154,11 @@ orderRouter.put(
           },
           (error, body) => {
             if (error) {
-              console.log(error);
             } else {
-              console.log(body);
             }
           }
         );
-      console.log(updatedOrder);
+
       res.send({ message: "Order Paid", order: updatedOrder });
     } else {
       res.status(404).send({ message: "Order Not Found" });

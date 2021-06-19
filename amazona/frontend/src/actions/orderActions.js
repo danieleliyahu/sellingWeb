@@ -90,7 +90,7 @@ export const listOrderMine = () => async (dispatch, getState) => {
   } = getState();
   try {
     const { data } = await Axios.get("/api/orders/mine");
-    console.log(data);
+
     dispatch({ type: ORDER_MINE_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -109,7 +109,7 @@ export const listOrders =
     } = getState();
     try {
       const { data } = await Axios.get(`/api/orders?seller=${seller}`);
-      console.log(data);
+
       dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -161,6 +161,7 @@ export const summaryOrder = () => async (dispatch, getState) => {
   } = getState();
   try {
     const { data } = await Axios.get("/api/orders/summary");
+    console.log(data);
     dispatch({ type: ORDER_SUMMERY_SUCCESS, payload: data });
   } catch (error) {
     dispatch({

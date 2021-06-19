@@ -6,6 +6,9 @@ const AdminRoute = ({ component: Component, ...rest }) => {
   const userInformation = useSelector((state) => state.userInformation);
   const { userInfo } = userInformation;
   console.log(userInformation);
+  {
+    console.log(userInfo);
+  }
   return (
     <Route
       {...rest}

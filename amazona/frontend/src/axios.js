@@ -11,7 +11,6 @@ axios.interceptors.request.use(async (req) => {
 axios.interceptors.response.use(
   (res) => {
     // when signout
-
     if (res.data.accessToken)
       Cookies.set("accessToken", res.data.accessToken, { expires: 1 });
     if (res.data.refreshToken)
@@ -19,23 +18,38 @@ axios.interceptors.response.use(
     return res;
   },
   async (err) => {
-    if (err.response.status !== 403) return err.response.data;
-    if (err.response.data.message !== "Not allowed") return err.response.data;
+    console.log(err);
+
+    if (err.response.status !== 403) return Promise.reject(err);
+    if (err.response.data.message !== "Invalid Token") {
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
+      localStorage.removeItem("userInfo");
+      return Promise.reject(err);
+    }
     const originalRequest = err.config;
 
     try {
       const refreshToken = Cookies.get("refreshToken");
+      console.log(refreshToken);
       const newTokenRes = await axios.post("/api/users/refresh_token", {
         refreshToken: refreshToken ? refreshToken : "",
       });
 
-      const { accessToken } = newTokenRes.data.accessToken;
+      console.log(newTokenRes);
+      if (newTokenRes === undefined) {
+        return Promise.reject(err);
+      }
+      console.log("sssssssssssssssssss");
+      const accessToken = newTokenRes.data;
       Cookies.set("accessToken", accessToken, { expires: 1 });
       const originalResponse = await axios(originalRequest);
       console.log(originalResponse);
+
+      // return Promise.reject(err);
       return originalResponse;
     } catch (e) {
-      return e.response.data;
+      return Promise.reject(e);
     }
   }
 );

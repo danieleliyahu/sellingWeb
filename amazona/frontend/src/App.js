@@ -53,7 +53,6 @@ function App() {
   console.log(userSignin);
   const dispatch = useDispatch();
   const history = useHistory();
-
   const signoutHandler = () => {
     dispatch(signout());
   };
@@ -70,14 +69,16 @@ function App() {
   //   Axios.post("/api/users/refresh_token");
   //   dispatch(userInformation());
   // }
+  console.log(userInfo);
   useEffect(async () => {
     console.log("11111");
 
     await Axios.post("/api/users/refresh_token");
     console.log("22222");
     dispatch(userInformation());
+
     console.log("33333");
-  }, [dispatch]);
+  }, [dispatch, error]);
 
   // useEffect(() => {
   //   if (userInfo) {

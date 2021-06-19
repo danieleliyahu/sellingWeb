@@ -69,7 +69,6 @@ export const isAuth = (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRET || "danieleliyho",
       (err, decode) => {
         if (err) {
-          console.log(err);
           res.status(403).send({ message: "Invalid Token" });
         } else {
           req.user = decode;

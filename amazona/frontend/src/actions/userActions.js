@@ -41,9 +41,22 @@ export const signin = (email, password) => async (dispatch) => {
   dispatch({ type: USER_SIGNIN_REQUEST, payload: { email, password } });
   try {
     const { data } = await Axios.post("/api/users/signin", { email, password });
+    // if (data === undefined) {
+    //   dispatch({
+    //     type: USER_SIGNIN_FAIL,
+    //     payload:
+    //       data.response && data.response.data.message
+    //         ? data.response.data.message
+    //         : data.message,
+    //   });
+    // }
+    console.log(data);
+
     dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
     // localStorage.setItem("userInfo", JSON.stringify(data));
   } catch (error) {
+    console.log(error);
+
     dispatch({
       type: USER_SIGNIN_FAIL,
       payload:
@@ -59,7 +72,6 @@ export const userInformation = () => async (dispatch) => {
     const { data } = await Axios.get("/api/users/info");
     dispatch({ type: USER_INFO_SUCCESS, payload: data });
     console.log(data);
-
     if (data === undefined) {
       return dispatch({
         type: USER_INFO_FAIL,
@@ -67,6 +79,8 @@ export const userInformation = () => async (dispatch) => {
     }
     localStorage.setItem("userInfo", JSON.stringify(data));
   } catch (error) {
+    console.log(error);
+
     console.log(error, "sssssssssssssssssssss");
 
     dispatch({

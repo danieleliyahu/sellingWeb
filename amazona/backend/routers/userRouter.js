@@ -94,8 +94,9 @@ userRouter.post(
 
     try {
       const rf_token = req.cookies.refreshToken;
-      if (!rf_token)
+      if (!rf_token) {
         return res.status(403).json({ message: "Please login now!" });
+      }
 
       jwt.verify(
         rf_token,
@@ -104,7 +105,7 @@ userRouter.post(
           if (err) {
             console.log(err);
 
-            return res.status(400).json({ message: "Please login now!" });
+            return res.status(403).json({ message: "Please login now!" });
           }
 
           const accessToken = createAccessToken({ id: user.id });
@@ -112,9 +113,9 @@ userRouter.post(
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
           console.log(user, "sssssssssssssssssssssssssss");
-          const userInfo = await User.findOne({ _id: user.id });
+          // const userInfo = await User.findOne({ _id: user.id });
 
-          res.json(userInfo);
+          res.json(accessToken);
         }
       );
     } catch (err) {

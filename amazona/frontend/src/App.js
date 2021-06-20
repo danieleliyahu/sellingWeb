@@ -53,8 +53,9 @@ function App() {
   console.log(userSignin);
   const dispatch = useDispatch();
   const history = useHistory();
-  const signoutHandler = () => {
+  const signoutHandler = async () => {
     dispatch(signout());
+    dispatch(userInformation());
   };
 
   const productCategoryList = useSelector((state) => state.productCategoryList);

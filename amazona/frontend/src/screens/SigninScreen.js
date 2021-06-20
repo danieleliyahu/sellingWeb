@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signin } from "../actions/userActions";
+import { signin, userInformation } from "../actions/userActions";
 import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
 import Axios from "../axios.js";
@@ -28,10 +28,11 @@ const SigninScreen = (props) => {
     e.preventDefault();
     dispatch(signin(email, password));
   };
-  useEffect(() => {
+  useEffect(async () => {
     if (userInfo) {
-      Axios.post("/api/users/refresh_token");
+      await Axios.post("/api/users/refresh_token");
       props.history.push(redirect);
+      dispatch(userInformation());
     }
   }, [userInfo]);
   return (

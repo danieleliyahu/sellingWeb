@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { Redirect, Route } from "react-router";
 
 const AdminRoute = ({ component: Component, ...rest }) => {
-  const userInformation = useSelector((state) => state.userInformation);
-  const { userInfo } = userInformation;
-  console.log(userInformation);
+  const userSignin = useSelector((state) => state.userSignin);
+  const { userInfo } = userSignin;
   {
     console.log(userInfo);
   }

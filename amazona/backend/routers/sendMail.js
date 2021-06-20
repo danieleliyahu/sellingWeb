@@ -15,16 +15,13 @@ const {
 
 const oauth2Client = new OAuth2(
   MAILING_SERVICE_CLIENT_ID,
-
   MAILING_SERVICE_CLIENT_SECRET,
-
   MAILING_SERVICE_REFRESH_TOKEN,
-
-  SENDER_EMAIL_ADDRESS
+  OAUTH_PLAYGROUND
 );
 
 //send mail
-
+console.log(oauth2Client);
 export const sendMail = (to, url, txt) => {
   oauth2Client.setCredentials({
     refresh_token: MAILING_SERVICE_REFRESH_TOKEN,

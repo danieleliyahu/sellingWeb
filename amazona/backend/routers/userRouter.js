@@ -192,12 +192,13 @@ userRouter.post(
     const {
       name,
       email,
-      sellerName,
+      // sellerName,
       confirmPassword,
       password,
-      sellerLogo,
-      sellerDescription,
+      // sellerLogo,
+      // sellerDescription,
     } = req.body;
+    console.log(email);
     const existsUser = await User.findOne({ email });
     if (existsUser) {
       return res.status(401).send({ message: "user already exists" });
@@ -228,20 +229,20 @@ userRouter.post(
     if (
       name &&
       email &&
-      sellerName &&
-      sellerLogo &&
-      sellerDescription &&
+      // sellerName &&
+      // sellerLogo &&
+      // sellerDescription &&
       password
     ) {
       const userInfo = {
         name,
         email,
-        seller: {
-          name: sellerName,
-          logo: sellerLogo,
-          description: sellerDescription,
-        },
-        isSeller: true,
+        // seller: {
+        //   name: sellerName,
+        //   logo: sellerLogo,
+        //   description: sellerDescription,
+        // },
+        // isSeller: true,
 
         password: bcrypt.hashSync(req.body.password, 8),
       };
@@ -292,6 +293,7 @@ userRouter.post(
     }
   })
 );
+
 userRouter.get(
   "/allusers",
   isAuth,
@@ -311,7 +313,9 @@ userRouter.post(
         activation_token,
         process.env.ACTIVATION_TOKEN_SECRET
       );
-
+      console.log(user.isSeller);
+      const b = "sssssss";
+      let x = 0;
       const check = await User.findOne({ email: user.email });
       if (check) {
         return res.status(400).json({ message: "This email already exsists." });
@@ -321,12 +325,16 @@ userRouter.post(
         user.name &&
         user.email &&
         user.password &&
-        user.isSeller &&
+        user.seller &&
         user.seller.name &&
         user.seller.logo &&
-        user.seller.description
+        user.seller.description &&
+        user.isSeller
       ) {
+        console.log(user);
+
         const { name, email, password, seller, isSeller } = user;
+
         const newUser = new User({
           name,
           email,
@@ -341,7 +349,10 @@ userRouter.post(
         await newUser.save();
         res.json({ message: "Account has been activated!" });
       } else if (user.name && user.email && user.password) {
+        // console.log(x, b);
+
         const { name, email, password, isAdmin, isSeller, token } = user;
+
         const newUser = new User({
           name,
           email,
@@ -356,6 +367,7 @@ userRouter.post(
         res.status(401).send({ message: "invalid token" });
       }
     } catch (err) {
+      console.log(err);
       return res.status(500).json({ message: err.message });
     }
   })

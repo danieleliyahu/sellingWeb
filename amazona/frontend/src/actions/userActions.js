@@ -34,6 +34,9 @@ import {
   USER_INFO_REQUEST,
   USER_INFO_SUCCESS,
   USER_INFO_FAIL,
+  SELLER_REGISTER_REQUEST,
+  SELLER_REGISTER_SUCCESS,
+  SELLER_REGISTER_FAIL,
 } from "../constants/userConstants";
 import { passwordValidate, validateEmail } from "../utils";
 
@@ -110,16 +113,7 @@ export const ActivateUser = (activation_token) => async (dispatch) => {
   }
 };
 export const register =
-  (
-    name,
-    email,
-    password,
-    confirmPassword,
-    sellerName,
-    sellerLogo,
-    sellerDescription
-  ) =>
-  async (dispatch) => {
+  (name, email, password, confirmPassword) => async (dispatch) => {
     dispatch({ type: USER_REGISTER_REQUEST, payload: { email, password } });
 
     if (!passwordValidate(password)) {
@@ -141,13 +135,10 @@ export const register =
         email,
         password,
         confirmPassword,
-        sellerName,
-        sellerLogo,
-        sellerDescription,
       });
 
       dispatch({ type: USER_REGISTER_SUCCESS, payload: data.message });
-      dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
+      // dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
     } catch (error) {
       dispatch({
         type: USER_REGISTER_FAIL,
@@ -158,7 +149,68 @@ export const register =
       });
     }
   };
+export const sellerRegister =
+  (
+    name,
+    email,
+    password,
+    confirmPassword,
+    sellerName,
+    sellerLogo,
+    sellerDescription
+  ) =>
+  async (dispatch) => {
+    dispatch({ type: SELLER_REGISTER_REQUEST, payload: { email, password } });
 
+    if (!passwordValidate(password)) {
+      return dispatch({
+        type: SELLER_REGISTER_FAIL,
+        payload:
+          "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+      });
+    }
+    if (!validateEmail(email)) {
+      return dispatch({
+        type: SELLER_REGISTER_FAIL,
+        payload: "email not valid",
+      });
+    }
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !sellerName ||
+      !sellerLogo ||
+      !sellerDescription
+    ) {
+      return dispatch({
+        type: SELLER_REGISTER_FAIL,
+        payload: "Fill in all the fields",
+      });
+    }
+    try {
+      const { data } = await Axios.post("/api/users/register", {
+        name,
+        email,
+        password,
+        confirmPassword,
+        sellerName,
+        sellerLogo,
+        sellerDescription,
+      });
+
+      dispatch({ type: USER_REGISTER_SUCCESS, payload: data.message });
+    } catch (error) {
+      dispatch({
+        type: USER_REGISTER_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
 export const signout = () => (dispatch) => {
   localStorage.removeItem("userInfo");
   localStorage.removeItem("cartItems");

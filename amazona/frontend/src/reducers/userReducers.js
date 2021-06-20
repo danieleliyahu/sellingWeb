@@ -38,6 +38,9 @@ import {
   USER_INFO_FAIL,
   USER_INFO_SUCCESS,
   USER_INFO_REQUEST,
+  SELLER_REGISTER_REQUEST,
+  SELLER_REGISTER_SUCCESS,
+  SELLER_REGISTER_FAIL,
 } from "../constants/userConstants";
 
 export const userSigninReducer = (state = {}, action) => {
@@ -81,7 +84,18 @@ export const userRegisterReducer = (state = {}, action, success = false) => {
       return state;
   }
 };
-
+export const sellerRegisterReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case SELLER_REGISTER_REQUEST:
+      return { loading: true };
+    case SELLER_REGISTER_SUCCESS:
+      return { loading: false, userInfo: action.payload, success: true };
+    case SELLER_REGISTER_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
 export const userActivateReducer = (state = {}, action) => {
   switch (action.type) {
     case USER_ACTIVATE_REQUEST:

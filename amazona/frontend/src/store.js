@@ -11,6 +11,8 @@ import {
 } from "./reducers/productReducers";
 import { cartReducer } from "./reducers/cartReducers";
 import {
+  forgotPasswordReducer,
+  resetPasswordReducer,
   sellerRegisterReducer,
   userActivateReducer,
   userDeleteReducer,
@@ -80,6 +82,8 @@ const reducer = combineReducers({
   userReviewCreate: userReviewCreateReducer,
   userActivate: userActivateReducer,
   userInformation: userInformationReducer,
+  forgotPassword: forgotPasswordReducer,
+  resetPassword: resetPasswordReducer,
 });
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

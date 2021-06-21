@@ -43,6 +43,9 @@ import {
   fetchUser,
 } from "./actions/tokenActions";
 import Cookies from "js-cookie";
+import SellerRegisterScreen from "./screens/SellerRegisterScreen";
+import ForgotPassScreen from "./screens/ForgotPassScreen";
+import ResetPassScreen from "./screens/ResetPassScreen";
 
 function App() {
   const cart = useSelector((state) => state.cart);
@@ -221,7 +224,13 @@ function App() {
           <Route path="/cart/:id?" component={CartScreen}></Route>
           <Route path="/signin" component={SigninScreen}></Route>
           <Route path="/register" component={RegisterScreen}></Route>
-          <Route path="/registerasseller" component={RegisterScreen}></Route>
+          <Route
+            path="/registerasseller"
+            component={SellerRegisterScreen}></Route>
+          <Route path="/forgotpass" component={ForgotPassScreen}></Route>
+          <Route
+            path="/user/reset/:accessToken"
+            component={ResetPassScreen}></Route>
           <Route path="/shipping" component={ShippingAddressScreen}></Route>
           <Route path="/payment" component={PaymentMethodScreen}></Route>
           <Route path="/placeorder" component={PlaceOrderScreen}></Route>

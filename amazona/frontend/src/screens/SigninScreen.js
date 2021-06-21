@@ -84,6 +84,9 @@ const SigninScreen = (props) => {
             <Link to={`/registerasseller?redirect=${redirect}`}>
               Start your own shop
             </Link>
+            <Link to={`/forgotpass?redirect=${redirect}`}>
+              Don't remember your password?
+            </Link>
           </div>
         </div>
       </form>

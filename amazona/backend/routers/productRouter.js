@@ -108,7 +108,7 @@ productRouter.post(
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
-    let { name, image, price, category, brand, description } =
+    let { name, image, price, countInStock, category, brand, description } =
       req.body.productInfo;
     if (name && image && price && category && brand && description) {
       const product = new Product({
@@ -118,7 +118,7 @@ productRouter.post(
         price,
         category,
         brand,
-        countInStock: 0,
+        countInStock,
         rating: 0,
         numReviews: 0,
         description,

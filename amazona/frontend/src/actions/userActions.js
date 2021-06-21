@@ -37,6 +37,12 @@ import {
   SELLER_REGISTER_REQUEST,
   SELLER_REGISTER_SUCCESS,
   SELLER_REGISTER_FAIL,
+  USER_FORGOT_PASSWORD_REQUEST,
+  USER_FORGOT_PASSWORD_SUCCESS,
+  USER_FORGOT_PASSWORD_FAIL,
+  USER_RESET_PASSWORD_REQUEST,
+  USER_RESET_PASSWORD_SUCCESS,
+  USER_RESET_PASSWORD_FAIL,
 } from "../constants/userConstants";
 import { passwordValidate, validateEmail } from "../utils";
 
@@ -105,6 +111,47 @@ export const ActivateUser = (activation_token) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: USER_ACTIVATE_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+export const forgot = (email) => async (dispatch) => {
+  dispatch({ type: USER_FORGOT_PASSWORD_REQUEST, payload: { email } });
+  try {
+    const { data } = await Axios.post("/api/users/forgot", {
+      email,
+    });
+    dispatch({ type: USER_FORGOT_PASSWORD_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: USER_FORGOT_PASSWORD_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+export const reset = (password) => async (dispatch) => {
+  dispatch({ type: USER_RESET_PASSWORD_REQUEST, payload: { password } });
+  if (!passwordValidate) {
+    return dispatch({
+      type: USER_RESET_PASSWORD_FAIL,
+      payload:
+        "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+    });
+  }
+  try {
+    const { data } = await Axios.post("/api/users/reset", {
+      password,
+    });
+    dispatch({ type: USER_RESET_PASSWORD_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: USER_RESET_PASSWORD_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message
@@ -190,7 +237,7 @@ export const sellerRegister =
       });
     }
     try {
-      const { data } = await Axios.post("/api/users/register", {
+      const { data } = await Axios.post("/api/users/sellerRegister", {
         name,
         email,
         password,
@@ -199,11 +246,11 @@ export const sellerRegister =
         sellerLogo,
         sellerDescription,
       });
-
-      dispatch({ type: USER_REGISTER_SUCCESS, payload: data.message });
+      console.log(data);
+      dispatch({ type: SELLER_REGISTER_SUCCESS, payload: data.message });
     } catch (error) {
       dispatch({
-        type: USER_REGISTER_FAIL,
+        type: SELLER_REGISTER_FAIL,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

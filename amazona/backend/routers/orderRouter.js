@@ -115,7 +115,8 @@ orderRouter.get(
   "/:id",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const order = await Order.findById(req.user.id);
+    const order = await Order.findById(req.params.id);
+    // const order = await Order.findById(req.user.id);
 
     if (order) {
       res.send(order);

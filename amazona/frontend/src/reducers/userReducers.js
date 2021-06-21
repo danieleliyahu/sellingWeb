@@ -41,6 +41,12 @@ import {
   SELLER_REGISTER_REQUEST,
   SELLER_REGISTER_SUCCESS,
   SELLER_REGISTER_FAIL,
+  USER_FORGOT_PASSWORD_REQUEST,
+  USER_FORGOT_PASSWORD_SUCCESS,
+  USER_FORGOT_PASSWORD_FAIL,
+  USER_RESET_PASSWORD_REQUEST,
+  USER_RESET_PASSWORD_SUCCESS,
+  USER_RESET_PASSWORD_FAIL,
 } from "../constants/userConstants";
 
 export const userSigninReducer = (state = {}, action) => {
@@ -89,8 +95,32 @@ export const sellerRegisterReducer = (state = {}, action, success = false) => {
     case SELLER_REGISTER_REQUEST:
       return { loading: true };
     case SELLER_REGISTER_SUCCESS:
-      return { loading: false, userInfo: action.payload, success: true };
+      return { loading: false, message: action.payload, success: true };
     case SELLER_REGISTER_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
+export const forgotPasswordReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case USER_FORGOT_PASSWORD_REQUEST:
+      return { loading: true };
+    case USER_FORGOT_PASSWORD_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case USER_FORGOT_PASSWORD_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
+export const resetPasswordReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case USER_RESET_PASSWORD_REQUEST:
+      return { loading: true };
+    case USER_RESET_PASSWORD_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case USER_RESET_PASSWORD_FAIL:
       return { loading: false, error: action.payload, success: false };
     default:
       return state;

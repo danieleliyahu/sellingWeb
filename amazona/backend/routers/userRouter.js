@@ -16,6 +16,7 @@ import {
 } from "../utils.js";
 import { sendMail } from "./sendMail.js";
 import jwt from "jsonwebtoken";
+import Product from "../models/productModel.js";
 
 const userRouter = express.Router();
 
@@ -59,31 +60,6 @@ userRouter.post(
     } catch (err) {
       return res.status(500).send({ message: err.message });
     }
-
-    // if (user.isSeller) {
-    //   res.send({
-    //     _id: user._id,
-    //     name: user.name,
-    //     email: user.email,
-    //     isAdmin: user.isAdmin,
-    //     isSeller: user.isSeller,
-    //     token: generateToken(user),
-    //     seller: {
-    //       name: user.seller.name,
-    //       logo: user.seller.logo,
-    //       description: user.seller.description,
-    //     },
-    //   });
-    // } else {
-    //   res.send({
-    //     _id: user._id,
-    //     name: user.name,
-    //     email: user.email,
-    //     isAdmin: user.isAdmin,
-    //     isSeller: user.isSeller,
-    //     token: generateToken(user),
-    //   });
-    // }
   })
 );
 
@@ -134,7 +110,7 @@ userRouter.post(
       if (!user)
         return res.status(401).send({ message: "This email does not exist" });
       const access_token = createAccessToken({ id: user._id });
-      const url = `${CLIENT_URL}/user/reset/${access_token}`;
+      const url = `${CLIENT_URL}user/reset/${access_token}`;
       sendMail(email, url, "Reset your password");
       res.json({ message: "Re-send the password,please check your email." });
     } catch (err) {
@@ -294,6 +270,73 @@ userRouter.post(
   })
 );
 
+userRouter.post(
+  "/sellerRegister",
+  expressAsyncHandler(async (req, res) => {
+    const {
+      name,
+      email,
+      sellerName,
+      confirmPassword,
+      password,
+      sellerLogo,
+      sellerDescription,
+    } = req.body;
+    console.log(email);
+    const existsUser = await User.findOne({ email });
+    if (existsUser) {
+      return res.status(401).send({ message: "user already exists" });
+    }
+
+    if (!passwordValidate(password)) {
+      return res.status(401).send({
+        message:
+          "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+      });
+    }
+    if (password !== confirmPassword) {
+      return res.status(401).send({
+        message: "Password and confirm Password dont match",
+      });
+    }
+    if (!validateEmail(email)) {
+      return res.status(401).send({ message: "invalid email" });
+    }
+
+    if (
+      name &&
+      email &&
+      sellerName &&
+      sellerLogo &&
+      sellerDescription &&
+      password
+    ) {
+      const userInfo = {
+        name,
+        email,
+        seller: {
+          name: sellerName,
+          logo: sellerLogo,
+          description: sellerDescription,
+        },
+        isSeller: true,
+
+        password: bcrypt.hashSync(req.body.password, 8),
+      };
+
+      const activation_token = createActivationToken(userInfo);
+      const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
+      sendMail(email, url, "Verify your email address");
+
+      res.send({
+        message: "Register Success! Please activate your email to start.",
+        success: true,
+      });
+    } else {
+      res.status(401).send({ message: "Please fill in all fields" });
+    }
+  })
+);
 userRouter.get(
   "/allusers",
   isAuth,
@@ -428,7 +471,16 @@ userRouter.delete(
   isAdmin,
   expressAsyncHandler(async (req, res) => {
     try {
-      await User.findByIdAndDelete(req.params.id);
+      // const user = await User.findById(req.params.id);
+      const user = await User.findByIdAndDelete(req.params.id);
+      console.log(user._id);
+
+      const product = await Product.deleteMany({ seller: user._id });
+      console.log(product, "cccc");
+      // if (product) {
+      //   const deleteProduct = await product.remove();
+      //   console.log("deleteProduct");
+      // }
       res.send({ message: "User Deleted" });
     } catch (err) {
       res.status(404).send({ message: "User Not Found" });

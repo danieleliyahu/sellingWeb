@@ -21,10 +21,12 @@ const SellerRegisterScreen = (props) => {
   const redirect = props.location.search
     ? props.location.search.split("=")[1]
     : "/";
-  const userRegister = useSelector((state) => state.userRegister);
-  const { userInfo, loading, error, success } = userRegister;
-
+  const userRegister = useSelector((state) => state.sellerRegister);
+  const { message, loading, error, success } = userRegister;
+  console.log(userRegister);
   const dispatch = useDispatch();
+  console.log(userRegister);
+  console.log(success);
   const submitHandler = (e) => {
     e.preventDefault();
     // if(validateEmail(email)){
@@ -57,7 +59,7 @@ const SellerRegisterScreen = (props) => {
       setConfirmPassword("");
       // props.history.push(redirect);
     }
-  }, [userInfo]);
+  }, [message]);
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
     const bodyFormData = new FormData();
@@ -81,7 +83,7 @@ const SellerRegisterScreen = (props) => {
         </div>
         {loading && <LoadingBox></LoadingBox>}
         {error && <MessageBox variant="danger">{error}</MessageBox>}
-        {userInfo && <MessageBox variant="success">{userInfo}</MessageBox>}
+        {message && <MessageBox variant="success">{message}</MessageBox>}
         <div>
           <label htmlFor="Name">Name</label>
           <input

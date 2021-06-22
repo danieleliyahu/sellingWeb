@@ -478,3 +478,31 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
+
+.product-small-img img {
+  height: 92px;
+  margin: 10px 0;
+  cursor: pointer;
+  display: block;
+  opacity: 1.6;
+}
+.product-small-img img:hover {
+  opacity: 1;
+}
+.product {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+}
+
+.img-container img {
+  height: 500px;
+}
+.product-small-img {
+  float: left;
+}
+.img-container {
+  float: right;
+  padding: 10px;
+}

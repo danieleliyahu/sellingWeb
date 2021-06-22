@@ -47,6 +47,7 @@ export default function ProductScreen(props) {
       alert("Please enter comment and rating");
     }
   };
+  const [image, setImage] = useState(product && product.image[0]);
 
   return (
     <div>
@@ -58,26 +59,30 @@ export default function ProductScreen(props) {
         <div>
           <Link to="/">Back to result</Link>
           <div className="row top">
-            <div className="col-2">
+            <div className="col-2 ">
               {console.log(product.image)}
-              {product.image.map((image, i) => {
-                return (
-                  <>
-                    {i === 0 ? (
-                      <img
-                        className="large"
-                        src={image}
-                        alt={product.name}></img>
-                    ) : (
-                      <img
-                        className="medium"
-                        src={image}
-                        alt={product.name}></img>
-                    )}
-                  </>
-                );
-              })}
+              <div className="product-small-img">
+                {product.image.map((image, i) => {
+                  return (
+                    <>
+                      {i >= 1 ? (
+                        <img
+                          onClick={(e) => setImage(e.target.src)}
+                          className="medium"
+                          src={image}
+                          alt={product.name}></img>
+                      ) : (
+                        ""
+                      )}
+                    </>
+                  );
+                })}
+              </div>
+              <div className="img-container">
+                <img src={image}></img>
+              </div>
             </div>
+
             <div className="col-1">
               <ul>
                 <li>

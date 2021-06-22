@@ -90,6 +90,14 @@ orderRouter.post(
     if (req.body.orderItems.length === 0) {
       res.status(400).send({ message: "Cart is empty" });
     } else {
+      console.log(req.body.orderItems[1].image);
+      console.log(req.body.orderItems[0].image);
+      // req.body.orderItems[0].image = req.body.orderItems[0].image[0];
+      // req.body.orderItems[1].image = req.body.orderItems[1].image[0];
+      for (let i = 0; i < req.body.orderItems.length; i++) {
+        req.body.orderItems[i].image = req.body.orderItems[i].image[0];
+      }
+
       const order = new Order({
         seller: req.body.orderItems[0].seller,
         orderItems: req.body.orderItems,

@@ -18,7 +18,11 @@ uploadRouter.post("/logo", upload.single("image"), (req, res) => {
   res.send(`/${req.file.path}`);
 });
 uploadRouter.post("/", isAuth, upload.single("image"), (req, res) => {
+  console.log(req.file);
   res.send(`/${req.file.path}`);
 });
-
+// uploadRouter.post("/", isAuth, upload.array("images"), (req, res) => {
+//   console.log(req.file);
+//   res.send(`/${req.file.path}`);
+// });
 export default uploadRouter;

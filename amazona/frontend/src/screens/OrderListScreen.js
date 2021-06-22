@@ -19,7 +19,6 @@ export default function OrderListScreen(props) {
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
   const dispatch = useDispatch();
-  console.log(userInfo);
   console.log(orders);
   useEffect(() => {
     dispatch({ type: ORDER_DELETE_RESET });
@@ -44,6 +43,7 @@ export default function OrderListScreen(props) {
       ) : (
         <table className="table">
           <thead>
+            {console.log(orders[0] && orders[0].shippingAddress.fullName)}
             <tr>
               <th>ID</th>
               <th>USER</th>
@@ -59,7 +59,11 @@ export default function OrderListScreen(props) {
             {orders.map((order) => (
               <tr key={order._id}>
                 <td>{order._id}</td>
-                <td>{order.user.name}</td>
+                <td>
+                  {order.user
+                    ? order.user.name
+                    : order.shippingAddress.fullName}
+                </td>
                 <td>{order.createdAt.substring(0, 10)}</td>
                 <td>{order.totalPrice.toFixed(2)}</td>
                 <td>{order.isPaid ? order.paidAt.substring(0, 10) : "No"}</td>

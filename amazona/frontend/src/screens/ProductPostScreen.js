@@ -52,9 +52,18 @@ export default function ProductPostScreen(props) {
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
   const uploadFileHandler = async (e) => {
+    console.log(e.target.files);
+    console.log(e.target.files[0]);
     const file = e.target.files[0];
     const bodyFormData = new FormData();
+    console.log(bodyFormData);
+    console.log(file);
+    if (file === undefined) {
+      return;
+    }
     bodyFormData.append("image", file);
+    console.log(bodyFormData);
+
     setLoadingUpload(true);
     try {
       const { data } = await Axios.post("/api/uploads", bodyFormData, {
@@ -62,6 +71,19 @@ export default function ProductPostScreen(props) {
           "Content-Type": "multipart/form-data",
         },
       });
+      if (image !== []) {
+        // console.log(image);
+        // setImage(...image);
+
+        // setImage([image]);
+        setImage((olderArr) => [...olderArr, data]);
+        console.log(image);
+        setLoadingUpload(false);
+        return;
+      }
+      setImage([image]);
+
+      console.log(image);
       setImage(data);
       setLoadingUpload(false);
     } catch (error) {
@@ -105,7 +127,7 @@ export default function ProductPostScreen(props) {
               id="image"
               type="text"
               placeholder="Enter image"
-              value={image}
+              value={[image]}
               onChange={(e) => setImage(e.target.value)}></input>
           </div>
           <div>

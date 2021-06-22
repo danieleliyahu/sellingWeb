@@ -59,10 +59,24 @@ export default function ProductScreen(props) {
           <Link to="/">Back to result</Link>
           <div className="row top">
             <div className="col-2">
-              <img
-                className="large"
-                src={product.image}
-                alt={product.name}></img>
+              {console.log(product.image)}
+              {product.image.map((image, i) => {
+                return (
+                  <>
+                    {i === 0 ? (
+                      <img
+                        className="large"
+                        src={image}
+                        alt={product.name}></img>
+                    ) : (
+                      <img
+                        className="medium"
+                        src={image}
+                        alt={product.name}></img>
+                    )}
+                  </>
+                );
+              })}
             </div>
             <div className="col-1">
               <ul>

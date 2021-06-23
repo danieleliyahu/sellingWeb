@@ -10,6 +10,7 @@ import {
   mailgun,
   payOrderEmailTemplate,
 } from "../utils.js";
+import { sendMail, sendMailWhenOrder } from "./sendMail.js";
 
 const orderRouter = express.Router();
 orderRouter.get(
@@ -87,16 +88,18 @@ orderRouter.post(
   "/",
   isAuth,
   expressAsyncHandler(async (req, res) => {
+    console.log("a");
+
     if (req.body.orderItems.length === 0) {
       res.status(400).send({ message: "Cart is empty" });
     } else {
-      console.log(req.body.orderItems[1].image);
-      console.log(req.body.orderItems[0].image);
       // req.body.orderItems[0].image = req.body.orderItems[0].image[0];
       // req.body.orderItems[1].image = req.body.orderItems[1].image[0];
+      console.log(req.body);
       for (let i = 0; i < req.body.orderItems.length; i++) {
         req.body.orderItems[i].image = req.body.orderItems[i].image[0];
       }
+      console.log("c");
 
       const order = new Order({
         seller: req.body.orderItems[0].seller,
@@ -138,10 +141,13 @@ orderRouter.put(
   "/:id/pay",
   isAuth,
   expressAsyncHandler(async (req, res) => {
+    console.log(req.user, "aaaaaaaaaaaaaaaa");
+
     const order = await Order.findById(req.params.id).populate(
       "user",
       "email name"
     );
+    console.log(order, "bbbbbbbbbbbbbbbbbbbb");
     if (order) {
       order.isPaid = true;
       order.paidAt = Date.now();
@@ -151,22 +157,17 @@ orderRouter.put(
         update_time: req.body.update_time,
         email_address: req.body.email_address,
       };
+      console.log(order, "cccccccccccccccccc");
+
       const updatedOrder = await order.save();
-      mailgun()
-        .messages()
-        .send(
-          {
-            from: "Amazona <me@samples.mailgun.org>",
-            to: `${order.user.name} <${order.user.email}>`,
-            subject: `New order ${order._id}`,
-            html: payOrderEmailTemplate(order),
-          },
-          (error, body) => {
-            if (error) {
-            } else {
-            }
-          }
-        );
+      console.log(order, "ddddddddddddddddddd");
+
+      // payOrderEmailTemplate(order)
+      console.log(order.user.email, "sssssssssssss");
+
+      sendMailWhenOrder(order.user.email, order);
+      // sendMail(order.user.email, "asdasdsa", "sdsadsadasdsa");
+      console.log(order.user.email, "ddddddddddddddddddd");
 
       res.send({ message: "Order Paid", order: updatedOrder });
     } else {

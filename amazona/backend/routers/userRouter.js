@@ -519,14 +519,15 @@ userRouter.post(
     const userId = req.params.id;
 
     const user = await User.findById(userId);
+    const ratingUser = await User.findById(req.user.id);
     if (user) {
-      if (user.seller.reviews.find((x) => x.name === req.user.name)) {
+      if (user.seller.reviews.find((x) => x.name === ratingUser.name)) {
         return res
           .status(400)
           .send({ message: "You already submitted a review" });
       }
       const review = {
-        name: req.user.name,
+        name: ratingUser.name,
         rating: Number(req.body.rating),
         comment: req.body.comment,
       };

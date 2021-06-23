@@ -38,6 +38,10 @@ export const ratings = [
     name: "1stars & up",
     rating: 1,
   },
+  {
+    name: "0stars & up",
+    rating: 0,
+  },
 ];
 export const passwordValidate = (password) => {
   let re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;

@@ -47,8 +47,10 @@ export default function ProductScreen(props) {
       alert("Please enter comment and rating");
     }
   };
-  const [image, setImage] = useState(product && product.image[0]);
-
+  const [image, setImage] = useState();
+  useEffect(() => {
+    if (product) setImage(product.image[0]);
+  }, [product]);
   return (
     <div>
       {loading ? (
@@ -59,24 +61,24 @@ export default function ProductScreen(props) {
         <div>
           <Link to="/">Back to result</Link>
           <div className="row top">
-            <div className="col-2 ">
+            <div className="col-2 productContainer ">
               {console.log(product.image)}
               <div className="product-small-img">
-                {product.image.map((image, i) => {
-                  return (
-                    <>
-                      {i >= 1 ? (
-                        <img
-                          onClick={(e) => setImage(e.target.src)}
-                          className="medium"
-                          src={image}
-                          alt={product.name}></img>
-                      ) : (
-                        ""
-                      )}
-                    </>
-                  );
-                })}
+                {product.length !== 0
+                  ? product.image.map((image, i) => {
+                      return (
+                        <>
+                          {
+                            <img
+                              onClick={(e) => setImage(e.target.src)}
+                              className="medium"
+                              src={image}
+                              alt={product.name}></img>
+                          }
+                        </>
+                      );
+                    })
+                  : ""}
               </div>
               <div className="img-container">
                 <img src={image}></img>
@@ -171,6 +173,7 @@ export default function ProductScreen(props) {
               <MessageBox>There is no review</MessageBox>
             )}
             <ul>
+              {console.log(product)}
               {product.reviews.map((review) => (
                 <li key={review._id}>
                   <strong>{review.name}</strong>

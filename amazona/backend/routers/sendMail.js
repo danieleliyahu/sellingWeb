@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { google } from "googleapis";
+import { payOrderEmailTemplate } from "../utils.js";
 const { OAuth2 } = google.auth;
 const OAUTH_PLAYGROUND = "https://developers.google.com/oauthplayground";
 
@@ -56,6 +57,33 @@ export const sendMail = (to, url, txt) => {
         <div>${url}</div>
         </div>
         `,
+  };
+  smtpTransport.sendMail(mailOptions, (err, infor) => {
+    if (err) return err;
+    return infor;
+  });
+};
+export const sendMailWhenOrder = (to, order) => {
+  oauth2Client.setCredentials({
+    refresh_token: MAILING_SERVICE_REFRESH_TOKEN,
+  });
+  const accessToken = oauth2Client.getAccessToken();
+  const smtpTransport = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: SENDER_EMAIL_ADDRESS,
+      clientId: MAILING_SERVICE_CLIENT_ID,
+      clientSecret: MAILING_SERVICE_CLIENT_SECRET,
+      refreshToken: MAILING_SERVICE_REFRESH_TOKEN,
+      accessToken,
+    },
+  });
+  const mailOptions = {
+    from: SENDER_EMAIL_ADDRESS,
+    to: to,
+    subject: "Daniel eliyho",
+    html: payOrderEmailTemplate(order),
   };
   smtpTransport.sendMail(mailOptions, (err, infor) => {
     if (err) return err;

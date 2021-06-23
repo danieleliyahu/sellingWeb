@@ -180,8 +180,11 @@ productRouter.post(
           .status(400)
           .send({ message: "You already submitted a review" });
       }
+      const user = await User.findById(req.user.id);
+      console.log(user);
+
       const review = {
-        name: req.user.name,
+        name: user.name,
         rating: Number(req.body.rating),
         comment: req.body.comment,
       };

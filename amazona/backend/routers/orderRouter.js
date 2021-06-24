@@ -1,5 +1,7 @@
 import express from "express";
 import expressAsyncHandler from "express-async-handler";
+import mongoose from "mongoose";
+
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import User from "../models/userModel.js";
@@ -13,6 +15,64 @@ import {
 import { sendMail, sendMailWhenOrder } from "./sendMail.js";
 
 const orderRouter = express.Router();
+// give total orderd pieces of product
+orderRouter.get(
+  "/specificproduct/:id",
+  isAuth,
+  isSellerOrAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const productId = req.params.id;
+    const sellerProducts = await Product.find({ seller: req.user.id });
+    if (req.isSeller && !req.isAdmin) {
+      const found = sellerProducts.find((product) => product._id == productId);
+      if (found === undefined) {
+        return res
+          .status(404)
+          .send({ message: "sory you dont own this product" });
+      }
+    }
+    const ObjectId = mongoose.Types.ObjectId;
+    try {
+      const timeThatProductOrdered = {};
+      timeThatProductOrdered.all = await Order.aggregate([
+        { $unwind: "$orderItems" },
+        {
+          $match: { "orderItems.product": ObjectId(productId) },
+        },
+        {
+          $group: {
+            _id: "$orderItems.name",
+            total: { $sum: "$orderItems.qty" },
+          },
+        },
+      ]);
+      timeThatProductOrdered.paid = await Order.aggregate([
+        { $unwind: "$orderItems" },
+        {
+          $match: {
+            $and: [
+              { "orderItems.product": ObjectId(productId) },
+              { isPaid: true },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: "$orderItems.name",
+            total: { $sum: "$orderItems.qty" },
+          },
+        },
+      ]);
+
+      timeThatProductOrdered.notPaid =
+        timeThatProductOrdered.all[0].total -
+        timeThatProductOrdered.paid[0].total;
+      res.json(timeThatProductOrdered);
+    } catch (err) {
+      res.status(404).send({ message: "no such producet" });
+    }
+  })
+);
 orderRouter.get(
   "/",
   isAuth,

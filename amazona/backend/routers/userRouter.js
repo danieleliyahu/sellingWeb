@@ -430,17 +430,9 @@ userRouter.put(
   "/profile",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(401).send({ message: "You are not signed in" });
-    }
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    if (user.isSeller) {
-      user.seller.name = req.body.sellerName || user.seller.name;
-      user.seller.description =
-        req.body.sellerDescription || user.seller.description;
-      user.seller.logo = req.body.sellerLogo || user.seller.logo;
     }
     if (req.body.password) {
       if (!passwordValidate(req.body.password)) {
@@ -452,6 +444,15 @@ userRouter.put(
 
       user.password = bcrypt.hashSync(req.body.password, 8);
     }
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    if (user.isSeller) {
+      user.seller.name = req.body.sellerName || user.seller.name;
+      user.seller.description =
+        req.body.sellerDescription || user.seller.description;
+      user.seller.logo = req.body.sellerLogo || user.seller.logo;
+    }
+
     const updatedUser = await user.save();
     res.send({ message: "Update Success" });
     // res.send({

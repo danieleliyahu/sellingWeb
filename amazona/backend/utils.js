@@ -61,9 +61,9 @@ export const createRefreshToken = (payload) => {
 // };
 export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
+
   if (authorization) {
     const token = authorization.slice(7, authorization.length);
-
     jwt.verify(
       token,
       process.env.ACCESS_TOKEN_SECRET || "danieleliyho",
@@ -110,6 +110,8 @@ export const isSeller = async (req, res, next) => {
 export const isSellerOrAdmin = async (req, res, next) => {
   const user = await User.findOne({ _id: req.user.id });
   if ((user && user.isSeller) || user.isAdmin) {
+    req.isAdmin = user.isAdmin;
+    req.isSeller = user.isSeller;
     next();
   } else {
     res.status(401).send({ message: "Invalid Admin/Seller Token" });

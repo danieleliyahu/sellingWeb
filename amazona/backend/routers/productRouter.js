@@ -95,6 +95,7 @@ productRouter.get(
       "seller",
       "seller.name seller.logo seller.rating seller.numReviews"
     );
+    console.log(product);
     if (product) {
       res.send(product);
     } else {
@@ -111,6 +112,7 @@ productRouter.post(
     let { name, image, price, countInStock, category, brand, description } =
       req.body.productInfo;
     if (name && image && price && category && brand && description) {
+      category = category.toLowerCase();
       const product = new Product({
         name,
         seller: req.user.id,

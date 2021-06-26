@@ -130,8 +130,8 @@ orderRouter.get(
           sales: { $sum: "$totalPrice" },
         },
       },
+      { $sort: { _id: 1 } },
     ]);
-
     const productCategories = await Product.aggregate([
       {
         $group: {

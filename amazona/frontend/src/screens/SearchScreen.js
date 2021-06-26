@@ -43,7 +43,11 @@ export default function SearchScreen(props) {
   }, [category, dispatch, max, min, name, order, rating, pageNumber]);
 
   const getFilterUrl = (filter) => {
+    console.log(filter.page);
+    console.log(category);
     const filterPage = filter.page || pageNumber;
+    console.log(filterPage);
+
     const filterCategory = filter.category || category;
     const filterName = filter.name || name;
     const filterRating = filter.rating || 0;

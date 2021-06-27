@@ -13,6 +13,7 @@ const DashboardScreen = () => {
   useEffect(() => {
     dispatch(summaryOrder());
   }, [dispatch]);
+  console.log(summary);
   return (
     <div>
       <div className="row">

@@ -43,30 +43,50 @@ analysisRouter.get(
             },
             orders: { $sum: 1 },
             sales: { $sum: "$totalPrice" },
+            sales: { $sum: "$totalPrice" },
           },
         },
         {
           $match: {
             _id: {
-              $gte: "2021-06-26",
+              $gte: "2021-06-27",
               // $lt: "2021-06-25",
             },
           },
         },
         { $sort: { _id: 1 } },
       ]);
-      for (let i = 0; i <= 24; i++) {
-        if (i < 10 && !dailyOrders[i]) {
+      console.log(dailyOrders);
+      let b = {};
+      let x = dailyOrders.map((dailyOrder) => {
+        dailyOrder._id = `${dailyOrder._id.slice(11)}:00`;
+        return (b[dailyOrder._id] = dailyOrder);
+      });
+      // console.log(b[`11:00`]);
+
+      // console.log(b[0][`11:00`]);
+      let ordersPerHouer = [];
+      for (let i = 1; i <= 24; i++) {
+        if (i < 10) {
+          if (b[`0${i}:00`]) {
+            ordersPerHouer.push(b[`0${i}:00`]);
+          } else {
+            ordersPerHouer.push({ _id: `0${i}:00`, orders: 0, sales: 0 });
+          }
           // dailyOrders[2] = { _id: `2021-06-26-0${2}` };
-          dailyOrders[i] = { _id: `2021-06-26-0${i}`, orders: 0, sales: 0 };
           // dailyOrders[i].orders = 0;
           // dailyOrders[i].sales = 0;
         }
-        if (i >= 10 && !dailyOrders[i]) {
-          dailyOrders[i] = { _id: `2021-06-26-${i}`, orders: 0, sales: 0 };
+        if (i >= 10) {
+          if (b[`${i}:00`]) {
+            ordersPerHouer.push(b[`${i}:00`]);
+          } else {
+            ordersPerHouer.push({ _id: `${i}:00`, orders: 0, sales: 0 });
+          }
         }
       }
-      console.log(dailyOrders);
+      console.log(ordersPerHouer);
+      // console.log(dailyOrders);
       // const orderAvg = await Order.aggregate([
       //   {
       //     $match: {

@@ -22,7 +22,7 @@ const oauth2Client = new OAuth2(
 );
 
 //send mail
-console.log(oauth2Client);
+console.log(oauth2Client, "sssssssssss");
 export const sendMail = (to, url, txt) => {
   oauth2Client.setCredentials({
     refresh_token: MAILING_SERVICE_REFRESH_TOKEN,

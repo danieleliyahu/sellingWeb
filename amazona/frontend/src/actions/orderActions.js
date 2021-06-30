@@ -26,6 +26,9 @@ import {
   ORDER_SUMMERY_FAIL,
   ORDER_SUMMERY_SUCCESS,
   ORDER_SUMMERY_REQUEST,
+  SALEPERHOUR_SUMMERY_SUCCESS,
+  SALEPERHOUR_SUMMERY_FAIL,
+  SALEPERHOUR_SUMMERY_REQUEST,
 } from "../constants/orderConstants";
 
 export const createOrder = (order) => async (dispatch, getState) => {
@@ -161,12 +164,29 @@ export const summaryOrder = () => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.get("/api/orders/summary");
+    const { data } = await Axios.get("/api/analysis/summary");
     console.log(data);
     dispatch({ type: ORDER_SUMMERY_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
       type: ORDER_SUMMERY_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+export const salePerHourForSaller = () => async (dispatch, getState) => {
+  dispatch({ type: SALEPERHOUR_SUMMERY_REQUEST });
+
+  try {
+    const { data } = await Axios.get("/api/analysis/salesperhour");
+    console.log(data);
+    dispatch({ type: SALEPERHOUR_SUMMERY_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: SALEPERHOUR_SUMMERY_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message

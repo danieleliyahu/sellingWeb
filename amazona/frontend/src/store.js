@@ -35,7 +35,9 @@ import {
   orderMineListReducer,
   orderPayReducer,
   orderSummaryReducer,
+  salePerHourForSallerSummaryReducer,
 } from "./reducers/orderReducers";
+import { productAnalysisReducer } from "./reducers/analysisReducers";
 
 const initialState = {
   userSignin: {
@@ -84,6 +86,8 @@ const reducer = combineReducers({
   userInformation: userInformationReducer,
   forgotPassword: forgotPasswordReducer,
   resetPassword: resetPasswordReducer,
+  salePerHourSaller: salePerHourForSallerSummaryReducer,
+  productAnalysis: productAnalysisReducer,
 });
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

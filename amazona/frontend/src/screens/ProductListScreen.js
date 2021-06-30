@@ -103,6 +103,14 @@ export default function ProductListScreen(props) {
                     onClick={() => deleteHandler(product)}>
                     Delete
                   </button>
+                  <button
+                    type="button"
+                    className="small"
+                    onClick={() =>
+                      props.history.push(`/product/${product._id}/details`)
+                    }>
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

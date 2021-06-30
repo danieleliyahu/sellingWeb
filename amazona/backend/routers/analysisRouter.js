@@ -1,6 +1,18 @@
 import express from "express";
 import expressAsyncHandler from "express-async-handler";
 import mongoose from "mongoose";
+import {
+  addMissingHours,
+  dailyOrdersFunc,
+  dailyOrdersSellerFunc,
+  formatDate,
+  formatDateAddMonth,
+  formatDateLastMonth,
+  formatDateThisMonth,
+  moneySellerMadeToday,
+  productSoldAllTime,
+  productSoldTodayAndYesterday,
+} from "../analysisUtils.js";
 
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
@@ -13,15 +25,26 @@ import {
   payOrderEmailTemplate,
 } from "../utils.js";
 const analysisRouter = express.Router();
+const yesterday = formatDate(
+  new Date(new Date().valueOf() - 1000 * 60 * 60 * 24)
+);
+const todayDate = formatDate(new Date());
+const thisMonth = formatDateThisMonth(new Date());
+const lastMonth = formatDateLastMonth(new Date());
 
+const lastweek = formatDate(
+  new Date(new Date().valueOf() - 1000 * 60 * 60 * 24 * 7)
+);
+const before2Weeks = formatDate(
+  new Date(new Date().valueOf() - 1000 * 60 * 60 * 24 * 14)
+);
+// time that a spasific product get sold today
 analysisRouter.get(
   "/order/:id",
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     const productId = req.params.id;
-    console.log(productId);
-
     const sellerProducts = await Order.find({ seller: req.user.id });
     if (req.isSeller && !req.isAdmin) {
       const found = sellerProducts.find((product) => product._id == productId);
@@ -31,89 +54,240 @@ analysisRouter.get(
           .send({ message: "sory you dont own this product" });
       }
     }
-    const ObjectId = mongoose.Types.ObjectId;
-    // console.log(new Date());
-
     try {
-      const dailyOrders = await Order.aggregate([
-        {
-          $group: {
-            _id: {
-              $dateToString: { format: "%Y-%m-%d-%H", date: "$createdAt" },
-            },
-            orders: { $sum: 1 },
-            sales: { $sum: "$totalPrice" },
-            sales: { $sum: "$totalPrice" },
-          },
+      const productSold = {};
+      (productSold["productSoldToday"] = await productSoldTodayAndYesterday(
+        todayDate,
+        productId
+      )),
+        (productSold["productSoldYesterDay"] =
+          await productSoldTodayAndYesterday(todayDate, productId, yesterday)),
+        (productSold["productSoldAllTime"] = await productSoldAllTime(
+          productId
+        )),
+        (productSold["moneyMadeToday"] = await moneySellerMadeToday(
+          todayDate,
+          req.user.id
+        )),
+        (productSold["moneyMadeYesterday"] = await moneySellerMadeToday(
+          todayDate,
+          req.user.id,
+          yesterday
+        )),
+        (productSold["moneyMadeLastWeek"] = await moneySellerMadeToday(
+          lastweek,
+          req.user.id
+        )),
+        (productSold["moneyMadeBefore2Weeks"] = await moneySellerMadeToday(
+          lastweek,
+          req.user.id,
+          before2Weeks
+        )),
+        // console.log(productSoldYesterDay);
+        console.log(
+          productSold,
+          1111111111111111111111111111111111111111111111111111
+        );
+      res.send(productSold);
+    } catch (err) {
+      res.status(404).send({ message: "no such producet" });
+    }
+  })
+);
+analysisRouter.get(
+  "/summary",
+  isAuth,
+  isAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const orders = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          numOrders: { $sum: 1 },
+          totalSales: { $sum: "$totalPrice" },
         },
-        {
-          $match: {
-            _id: {
-              $gte: "2021-06-27",
-              // $lt: "2021-06-25",
-            },
-          },
+      },
+    ]);
+    const users = await User.aggregate([
+      {
+        $group: {
+          _id: null,
+          numUsers: { $sum: 1 },
         },
-        { $sort: { _id: 1 } },
-      ]);
-      console.log(dailyOrders);
-      let b = {};
-      let x = dailyOrders.map((dailyOrder) => {
-        dailyOrder._id = `${dailyOrder._id.slice(11)}:00`;
-        return (b[dailyOrder._id] = dailyOrder);
-      });
-      // console.log(b[`11:00`]);
+      },
+      { $sort: { _id: 1 } },
+    ]);
 
-      // console.log(b[0][`11:00`]);
-      let ordersPerHouer = [];
-      for (let i = 1; i <= 24; i++) {
-        if (i < 10) {
-          if (b[`0${i}:00`]) {
-            ordersPerHouer.push(b[`0${i}:00`]);
-          } else {
-            ordersPerHouer.push({ _id: `0${i}:00`, orders: 0, sales: 0 });
-          }
-          // dailyOrders[2] = { _id: `2021-06-26-0${2}` };
-          // dailyOrders[i].orders = 0;
-          // dailyOrders[i].sales = 0;
-        }
-        if (i >= 10) {
-          if (b[`${i}:00`]) {
-            ordersPerHouer.push(b[`${i}:00`]);
-          } else {
-            ordersPerHouer.push({ _id: `${i}:00`, orders: 0, sales: 0 });
-          }
-        }
-      }
-      console.log(ordersPerHouer);
-      // console.log(dailyOrders);
-      // const orderAvg = await Order.aggregate([
-      //   {
-      //     $match: {
-      //       createdAt: {
-      //         $gte: "2021-06-24T00:00:00.00+00:00",
-      //         $lt: "2021-06-25T00:00:00.00+00:00",
-      //       },
+    const ThisMonthDailyOrders = await Order.aggregate([
+      {
+        $match: {
+          isPaid: true,
+          createdAt: {
+            $gte: new Date(thisMonth),
+            // $lt: new Date(thisMonth),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          orders: { $sum: 1 },
+          sales: { $sum: "$totalPrice" },
+        },
+      },
+
+      { $sort: { _id: 1 } },
+    ]);
+    const lastMonthDailyOrders = await Order.aggregate([
+      {
+        $match: {
+          isPaid: true,
+          createdAt: {
+            $gte: new Date(lastMonth),
+            $lt: new Date(thisMonth),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          orders: { $sum: 1 },
+          sales: { $sum: "$totalPrice" },
+        },
+      },
+      // {
+      //   $match: {
+      //     _id: {
+      //       $gte: lastMonth,
+      //       $lt: thisMonth,
       //     },
       //   },
-      //   {
-      //     $group: {
-      //       _id: { $hour: "$createdAt" },
-      //       count: { $sum: 1 },
-      //     },
-      //   },
-      //   {
-      //     $sort: {
-      //       _id: 1,
-      //     },
-      //   },
-      // ]);
-      // console.log(orderAvg);
+      // },
+      { $sort: { _id: 1 } },
+    ]);
+    console.log(lastMonthDailyOrders);
+    lastMonthDailyOrders.map((lastMonthDailyOrder) => {
+      lastMonthDailyOrder._id = formatDateAddMonth(
+        new Date(lastMonthDailyOrder._id)
+      );
+    });
+    console.log(lastMonthDailyOrders);
+    const productCategories = await Product.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    console.log(lastMonthDailyOrders);
+    console.log(ThisMonthDailyOrders);
+
+    res.send({
+      productCategories,
+      lastMonthDailyOrders,
+      ThisMonthDailyOrders,
+      users,
+      orders,
+    });
+  })
+);
+// money seller made
+analysisRouter.get(
+  "/SellerMoney",
+  isAuth,
+  isSellerOrAdmin,
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const moneyMade = {};
+
+      (moneyMade["moneyMadeToday"] = await moneySellerMadeToday(
+        todayDate,
+        req.user.id
+      )),
+        (moneyMade["moneyMadeYesterday"] = await moneySellerMadeToday(
+          todayDate,
+          req.user.id,
+          yesterday
+        )),
+        (moneyMade["moneyMadeLastWeek"] = await moneySellerMadeToday(
+          lastweek,
+          req.user.id
+        )),
+        (moneyMade["moneyMadeBefore2Weeks"] = await moneySellerMadeToday(
+          lastweek,
+          req.user.id,
+          before2Weeks
+        )),
+        // console.log(productSoldYesterDay);
+
+        res.send(moneyMade);
+    } catch (err) {
+      res.status(404).send({ message: "not promision" });
+    }
+  })
+);
+// orders per hour today and yesterday
+analysisRouter.get(
+  "/salesperhour",
+  isAuth,
+  isAdmin,
+  expressAsyncHandler(async (req, res) => {
+    try {
+      let dailyOrders = {};
+
+      dailyOrders["dailyOrdersToday"] = await dailyOrdersFunc(todayDate);
+
+      dailyOrders["dailyOrdersYesterDay"] = await dailyOrdersFunc(yesterday);
+      console.log(dailyOrders);
+
+      dailyOrders["dailyOrdersToday"] = await addMissingHours(
+        dailyOrders,
+        "dailyOrdersToday"
+      );
+      console.log(dailyOrders);
+
+      dailyOrders["dailyOrdersYesterDay"] = await addMissingHours(
+        dailyOrders,
+        "dailyOrdersYesterDay"
+      );
       res.send(dailyOrders);
     } catch (err) {
       res.status(404).send({ message: err });
     }
   })
 );
+// sales per hour of saller
+analysisRouter.get(
+  "/salesperhourSeller",
+  isAuth,
+  isSellerOrAdmin,
+  expressAsyncHandler(async (req, res) => {
+    try {
+      let dailyOrders = {};
 
+      dailyOrders["dailyOrdersToday"] = await dailyOrdersSellerFunc(
+        todayDate,
+        req.user.id
+      );
+
+      dailyOrders["dailyOrdersYesterDay"] = await dailyOrdersSellerFunc(
+        yesterday,
+        req.user.id
+      );
+
+      dailyOrders["dailyOrdersToday"] = await addMissingHours(
+        dailyOrders,
+        "dailyOrdersToday"
+      );
+      dailyOrders["dailyOrdersYesterDay"] = await addMissingHours(
+        dailyOrders,
+        "dailyOrdersYesterDay"
+      );
+      res.send(dailyOrders);
+    } catch (err) {
+      res.status(404).send({ message: err });
+    }
+  })
+);
 export default analysisRouter;

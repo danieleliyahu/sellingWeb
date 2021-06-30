@@ -46,6 +46,7 @@ import Cookies from "js-cookie";
 import SellerRegisterScreen from "./screens/SellerRegisterScreen";
 import ForgotPassScreen from "./screens/ForgotPassScreen";
 import ResetPassScreen from "./screens/ResetPassScreen";
+import ProductDetailsScreen from "./screens/ProductDetailsScreen";
 
 function App() {
   const cart = useSelector((state) => state.cart);
@@ -280,6 +281,10 @@ function App() {
           <SellerRoute
             path="/productlist/seller"
             component={ProductListScreen}
+            exact></SellerRoute>
+          <SellerRoute
+            path="/product/:id/details"
+            component={ProductDetailsScreen}
             exact></SellerRoute>
           <SellerRoute
             path="/productlist/seller/pageNumber/:pageNumber"

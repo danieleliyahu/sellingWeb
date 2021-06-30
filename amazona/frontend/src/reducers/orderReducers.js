@@ -27,6 +27,9 @@ import {
   ORDER_SUMMERY_REQUEST,
   ORDER_SUMMERY_SUCCESS,
   ORDER_SUMMERY_FAIL,
+  SALEPERHOUR_SUMMERY_REQUEST,
+  SALEPERHOUR_SUMMERY_SUCCESS,
+  SALEPERHOUR_SUMMERY_FAIL,
 } from "../constants/orderConstants";
 
 export const orderCreateReducer = (state = {}, action) => {
@@ -135,6 +138,22 @@ export const orderSummaryReducer = (
     case ORDER_SUMMERY_SUCCESS:
       return { loading: false, summary: action.payload };
     case ORDER_SUMMERY_FAIL:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const salePerHourForSallerSummaryReducer = (
+  state = { loading: true, summary: {} },
+  action
+) => {
+  switch (action.type) {
+    case SALEPERHOUR_SUMMERY_REQUEST:
+      return { loading: true };
+    case SALEPERHOUR_SUMMERY_SUCCESS:
+      return { loading: false, sellerSalesPerHour: action.payload };
+    case SALEPERHOUR_SUMMERY_FAIL:
       return { loading: false, error: action.payload };
     default:
       return state;

@@ -113,7 +113,7 @@ const ProductDetailsScreen = (props) => {
                       </span>
                     </div>
                     <div className="summary-body">
-                      {moneyErendAllTime}
+                      {moneyErendAllTime}$
                       {/* {summary.orders[0]
                   ? summary.orders[0].totalSales.toFixed(2)
                   : 0} */}

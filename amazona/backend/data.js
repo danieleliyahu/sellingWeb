@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+// import { frigider } from "..";
 const data = {
   users: [
     {
@@ -40,7 +41,7 @@ const data = {
       isAdmin: false,
       isSeller: true,
       seller: {
-        name: "Puma",
+        name: "Nike",
         logo: "/images/p1.jpg",
         description: "best seller",
         rating: 4.5,

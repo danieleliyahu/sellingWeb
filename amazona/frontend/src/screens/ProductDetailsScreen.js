@@ -56,6 +56,7 @@ const ProductDetailsScreen = (props) => {
                   <Link to={`/product/${productId}`}>
                     <img
                       className="medium"
+                      id="productdetailsimg"
                       src={product.image[0]}
                       alt={product.name}></img>
                   </Link>
@@ -71,66 +72,54 @@ const ProductDetailsScreen = (props) => {
             <li>{product.description}</li>
           </ul>
           <div>
+            {console.log(productSold)}
             {productSold ? (
               <div>
                 <ul className="row summary">
                   <li>
                     <div className="summary-title color1">
-                      <span>pieces that sold today compared to yesterday</span>
+                      <span className="textdeshbord">Pieces sold today</span>
                     </div>
                     <div className="summary-body">
-                      {productSoldTodayComperYesterday}
-                      <span
-                        className={
-                          productSoldTodayComperYesterday > 0
-                            ? `arrowUp`
-                            : `arrowDown`
-                        }>
-                        {" "}
-                        {productSoldTodayComperYesterday !== 0 && (
-                          <i
-                            className={
-                              productSoldTodayComperYesterday > 0
-                                ? "fa fa-arrow-up"
-                                : "fa fa-arrow-down"
-                            }></i>
-                        )}
-                      </span>
+                      <div className="comperdiv">
+                        {productSoldTodayComperYesterday}
+                        <span
+                          className={
+                            productSoldTodayComperYesterday > 0
+                              ? `arrowUp`
+                              : `arrowDown`
+                          }>
+                          {" "}
+                          {productSoldTodayComperYesterday !== 0 && (
+                            <i
+                              className={
+                                productSoldTodayComperYesterday > 0
+                                  ? "fa fa-arrow-up"
+                                  : "fa fa-arrow-down"
+                              }></i>
+                          )}
+                        </span>
+                      </div>
+                      <div>{productSold.productSoldToday[0].qty}</div>
                     </div>
                   </li>
                   <li>
                     <div className="summary-title color2">
-                      <span>
-                        <i className="fa fa-shopping-cart"></i>Money erend today
-                      </span>
+                      <span className="textdeshbord">Today's Revenues</span>
                     </div>
                     <div className="summary-body">{`${moneyErendToday}$`}</div>
                   </li>
                   <li>
                     <div className="summary-title color3">
-                      <span>
-                        <i className="fa fa-money"></i>Total money erend
-                      </span>
+                      <span className="textdeshbord">Total Revenues</span>
                     </div>
-                    <div className="summary-body">
-                      {moneyErendAllTime}$
-                      {/* {summary.orders[0]
-                  ? summary.orders[0].totalSales.toFixed(2)
-                  : 0} */}
-                    </div>
+                    <div className="summary-body">{moneyErendAllTime}$</div>
                   </li>
                   <li>
                     <div className="summary-title color3">
-                      <span>
-                        <i className="fa fa-money"></i> Total pieces sold
-                      </span>
+                      <span className="textdeshbord">Total pieces sold</span>
                     </div>
-                    <div className="summary-body">
-                      {productSoldAllTime}
-                      {/* {summary.orders[0]
-                  ? summary.orders[0].totalSales.toFixed(2)
-                  : 0} */}
-                    </div>
+                    <div className="summary-body">{productSoldAllTime}</div>
                   </li>
                 </ul>
               </div>

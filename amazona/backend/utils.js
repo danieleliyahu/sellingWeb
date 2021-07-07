@@ -101,7 +101,7 @@ export const isSeller = async (req, res, next) => {
         .status(500)
         .send({ message: "Admin resources access denied." });
     }
-    ca;
+
     next();
   } catch (err) {
     return res.status(500).send({ message: err.message });

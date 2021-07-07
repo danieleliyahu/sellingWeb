@@ -35,8 +35,11 @@ userRouter.get(
 userRouter.get(
   "/seed",
   expressAsyncHandler(async (req, res) => {
+    console.log(data.users);
     // await User.remove({});
-    const createdUsers = await User.insertMany(data.users);
+    const createdUsers = await User.insertMany(data.products);
+    console.log(createdUsers);
+
     res.send({ createdUsers });
   })
 );
@@ -357,7 +360,6 @@ userRouter.post(
         process.env.ACTIVATION_TOKEN_SECRET
       );
       console.log(user.isSeller);
-      const b = "sssssss";
       let x = 0;
       const check = await User.findOne({ email: user.email });
       if (check) {
@@ -392,8 +394,6 @@ userRouter.post(
         await newUser.save();
         res.json({ message: "Account has been activated!" });
       } else if (user.name && user.email && user.password) {
-        // console.log(x, b);
-
         const { name, email, password, isAdmin, isSeller, token } = user;
 
         const newUser = new User({

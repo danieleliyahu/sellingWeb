@@ -9,9 +9,11 @@ import {
   formatDateAddMonth,
   formatDateLastMonth,
   formatDateThisMonth,
-  moneySellerMadeToday,
+  moneySellerMade,
+  moneySellerMadeAllTime,
   productSoldAllTime,
   productSoldTodayAndYesterday,
+  ThisMonthDaily,
 } from "../analysisUtils.js";
 
 import Order from "../models/orderModel.js";
@@ -20,6 +22,7 @@ import User from "../models/userModel.js";
 import {
   isAdmin,
   isAuth,
+  isSeller,
   isSellerOrAdmin,
   mailgun,
   payOrderEmailTemplate,
@@ -40,12 +43,37 @@ const before2Weeks = formatDate(
 );
 // time that a spasific product get sold today
 analysisRouter.get(
-  "/order/:id",
+  "/sellerorder/:id",
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     const productId = req.params.id;
     const sellerProducts = await Order.find({ seller: req.user.id });
+    if (req.isSeller && !req.isAdmin) {
+      const found = sellerProducts.find((product) => product._id == productId);
+      if (found) {
+        res.send(true);
+      } else {
+        res.send(false);
+      }
+    } else {
+      res.send(false);
+    }
+  })
+);
+analysisRouter.get(
+  "/order/:id",
+  isAuth,
+  isSellerOrAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const productId = req.params.id;
+    const sellerProducts = await Product.find({ seller: req.user.id })
+      .then((products) => {
+        return products;
+      })
+      .catch((err) => {
+        return res.status(404).send("sory you dont own this product");
+      });
     if (req.isSeller && !req.isAdmin) {
       const found = sellerProducts.find((product) => product._id == productId);
       if (found === undefined) {
@@ -65,30 +93,25 @@ analysisRouter.get(
         (productSold["productSoldAllTime"] = await productSoldAllTime(
           productId
         )),
-        (productSold["moneyMadeToday"] = await moneySellerMadeToday(
-          todayDate,
-          req.user.id
-        )),
-        (productSold["moneyMadeYesterday"] = await moneySellerMadeToday(
-          todayDate,
-          req.user.id,
-          yesterday
-        )),
-        (productSold["moneyMadeLastWeek"] = await moneySellerMadeToday(
-          lastweek,
-          req.user.id
-        )),
-        (productSold["moneyMadeBefore2Weeks"] = await moneySellerMadeToday(
-          lastweek,
-          req.user.id,
-          before2Weeks
-        )),
-        // console.log(productSoldYesterDay);
-        console.log(
-          productSold,
-          1111111111111111111111111111111111111111111111111111
-        );
-      res.send(productSold);
+        // (productSold["moneyMadeToday"] = await moneySellerMade(
+        //   todayDate,
+        //   req.user.id
+        // )),
+        // (productSold["moneyMadeYesterday"] = await moneySellerMade(
+        //   todayDate,
+        //   req.user.id,
+        //   yesterday
+        // )),
+        // (productSold["moneyMadeLastWeek"] = await moneySellerMade(
+        //   lastweek,
+        //   req.user.id
+        // )),
+        // (productSold["moneyMadeBefore2Weeks"] = await moneySellerMade(
+        //   lastweek,
+        //   req.user.id,
+        //   before2Weeks
+        // )),
+        res.send(productSold);
     } catch (err) {
       res.status(404).send({ message: "no such producet" });
     }
@@ -194,34 +217,35 @@ analysisRouter.get(
 );
 // money seller made
 analysisRouter.get(
-  "/SellerMoney",
+  "/sellerMoney",
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     try {
       const moneyMade = {};
 
-      (moneyMade["moneyMadeToday"] = await moneySellerMadeToday(
+      (moneyMade["moneyMadeToday"] = await moneySellerMade(
         todayDate,
         req.user.id
       )),
-        (moneyMade["moneyMadeYesterday"] = await moneySellerMadeToday(
+        (moneyMade["moneyMadeYesterday"] = await moneySellerMade(
           todayDate,
           req.user.id,
           yesterday
         )),
-        (moneyMade["moneyMadeLastWeek"] = await moneySellerMadeToday(
+        (moneyMade["moneyMadeLastWeek"] = await moneySellerMade(
           lastweek,
           req.user.id
         )),
-        (moneyMade["moneyMadeBefore2Weeks"] = await moneySellerMadeToday(
+        (moneyMade["moneyMadeBefore2Weeks"] = await moneySellerMade(
           lastweek,
           req.user.id,
           before2Weeks
         )),
-        // console.log(productSoldYesterDay);
+        (moneyMade["allTime"] = await moneySellerMadeAllTime(req.user.id)),
+        console.log(moneyMade);
 
-        res.send(moneyMade);
+      res.send(moneyMade);
     } catch (err) {
       res.status(404).send({ message: "not promision" });
     }
@@ -231,16 +255,26 @@ analysisRouter.get(
 analysisRouter.get(
   "/salesperhour",
   isAuth,
-  isAdmin,
+  isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
+    const userId = req.user.id;
     try {
       let dailyOrders = {};
+      if (req.isAdmin) {
+        dailyOrders["dailyOrdersToday"] = await dailyOrdersFunc(todayDate);
 
-      dailyOrders["dailyOrdersToday"] = await dailyOrdersFunc(todayDate);
+        dailyOrders["dailyOrdersYesterDay"] = await dailyOrdersFunc(yesterday);
+      } else {
+        dailyOrders["dailyOrdersToday"] = await dailyOrdersFunc(
+          todayDate,
+          userId
+        );
 
-      dailyOrders["dailyOrdersYesterDay"] = await dailyOrdersFunc(yesterday);
-      console.log(dailyOrders);
-
+        dailyOrders["dailyOrdersYesterDay"] = await dailyOrdersFunc(
+          yesterday,
+          userId
+        );
+      }
       dailyOrders["dailyOrdersToday"] = await addMissingHours(
         dailyOrders,
         "dailyOrdersToday"
@@ -287,6 +321,21 @@ analysisRouter.get(
       res.send(dailyOrders);
     } catch (err) {
       res.status(404).send({ message: err });
+    }
+  })
+);
+analysisRouter.get(
+  "/sallermoneymonth",
+  isAuth,
+  isSeller,
+  expressAsyncHandler(async (req, res) => {
+    const sellerId = req.user.id;
+    try {
+      const monthly = await ThisMonthDaily(thisMonth, sellerId, lastMonth);
+      console.log(monthly);
+      res.send(monthly);
+    } catch (err) {
+      res.status(404).send({ message: "no such seller" });
     }
   })
 );

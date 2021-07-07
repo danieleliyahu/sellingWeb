@@ -52,7 +52,51 @@ const lastweek = formatDate(
 const before2Weeks = formatDate(
   new Date(new Date().valueOf() - 1000 * 60 * 60 * 24 * 14)
 );
-
+export const ThisMonthDaily = async (thisMonth, sellerId, lastMonth) => {
+  const ObjectId = mongoose.Types.ObjectId;
+  const monthly = {};
+  monthly["ThisMonthDailyOrders"] = await Order.aggregate([
+    {
+      $match: {
+        isPaid: true,
+        createdAt: {
+          $gte: new Date(thisMonth),
+        },
+        seller: ObjectId(sellerId),
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        orders: { $sum: 1 },
+        sales: { $sum: "$totalPrice" },
+      },
+    },
+    // { $match: { seller: ObjectId(sellerId) } },
+    { $sort: { _id: 1 } },
+  ]);
+  monthly["lastMonthDailyOrders"] = await Order.aggregate([
+    {
+      $match: {
+        isPaid: true,
+        createdAt: {
+          $gte: new Date(lastMonth),
+          $lt: new Date(thisMonth),
+        },
+        seller: ObjectId(sellerId),
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        orders: { $sum: 1 },
+        sales: { $sum: "$totalPrice" },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+  return monthly;
+};
 export const productSoldTodayAndYesterday = async (date, productId, before) => {
   const ObjectId = mongoose.Types.ObjectId;
   let x;
@@ -102,7 +146,6 @@ export const productSoldTodayAndYesterday = async (date, productId, before) => {
       { $match: { _id: ObjectId(productId) } },
     ]);
   }
-  console.log(x, "aaaaaaaaaaaaaaaaaaaaa");
 
   if (x.length === 0) {
     x = [{ _id: productId, qty: 0 }];
@@ -131,7 +174,6 @@ export const productSoldAllTime = async (productId) => {
     },
     { $match: { _id: ObjectId(productId) } },
   ]);
-  console.log(x, "aaaaaaaaaaaaaaaaaaaaa");
 
   if (x.length === 0) {
     x = [{ _id: productId, qty: 0 }];
@@ -139,7 +181,31 @@ export const productSoldAllTime = async (productId) => {
 
   return x;
 };
-export const moneySellerMadeToday = async (date, sellerId, before) => {
+export const moneySellerMadeAllTime = async (sellerId) => {
+  const ObjectId = mongoose.Types.ObjectId;
+  let x;
+
+  x = await Order.aggregate([
+    {
+      $match: {
+        isPaid: true,
+      },
+    },
+
+    {
+      $group: {
+        _id: "$seller",
+        money: { $sum: "$totalPrice" },
+      },
+    },
+    { $match: { _id: ObjectId(sellerId) } },
+  ]);
+  if (x.length === 0) {
+    x = [{ _id: sellerId, money: 0 }];
+  }
+  return x;
+};
+export const moneySellerMade = async (date, sellerId, before) => {
   const ObjectId = mongoose.Types.ObjectId;
   let x;
   if (before) {
@@ -189,8 +255,72 @@ export const moneySellerMadeToday = async (date, sellerId, before) => {
   return x;
 };
 
-export const dailyOrdersFunc = async (date) => {
+export const dailyOrdersFunc = async (date, userId) => {
   let x;
+  const ObjectId = mongoose.Types.ObjectId;
+
+  if (userId) {
+    if (date === yesterday) {
+      x = await Order.aggregate([
+        {
+          $match: {
+            seller: ObjectId(userId),
+            isPaid: true,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d-%H", date: "$createdAt" },
+            },
+            orders: { $sum: 1 },
+            sales: { $sum: "$totalPrice" },
+          },
+        },
+        {
+          $match: {
+            _id: {
+              $gte: date,
+              $lt: todayDate,
+            },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+    } else {
+      x = await Order.aggregate([
+        {
+          $match: {
+            seller: ObjectId(userId),
+            isPaid: true,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d-%H", date: "$createdAt" },
+            },
+            orders: { $sum: 1 },
+            sales: { $sum: "$totalPrice" },
+          },
+        },
+        {
+          $match: {
+            _id: {
+              $gte: date,
+              // $lt: "2021-06-25",
+            },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+    }
+
+    if (x.length === 0) {
+      x = [{ _id: date, orders: 0, sales: 0 }];
+    }
+    return x;
+  }
   if (date === yesterday) {
     x = await Order.aggregate([
       {
@@ -244,6 +374,7 @@ export const dailyOrdersFunc = async (date) => {
       { $sort: { _id: 1 } },
     ]);
   }
+
   if (x.length === 0) {
     x = [{ _id: date, orders: 0, sales: 0 }];
   }

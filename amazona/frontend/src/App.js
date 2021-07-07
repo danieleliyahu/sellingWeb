@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+// import "bootstrap/dist/css/bootstrap.min.css";
 import {
   BrowserRouter,
   Link,
@@ -33,7 +34,7 @@ import { useEffect, useState } from "react";
 import { listProductCategories } from "./actions/productActions";
 import LoadingBox from "./components/LoadingBox";
 import MessageBox from "./components/MessageBox";
-import DashboardScreen from "./screens/DashboardScreen";
+import AdminDashboardScreen from "./screens/AdminDashboardScreen";
 import ProductPostScreen from "./screens/ProductPostScreen";
 import UserActivateScreen from "./screens/UserActivateScreen";
 import Axios from "axios";
@@ -47,6 +48,7 @@ import SellerRegisterScreen from "./screens/SellerRegisterScreen";
 import ForgotPassScreen from "./screens/ForgotPassScreen";
 import ResetPassScreen from "./screens/ResetPassScreen";
 import ProductDetailsScreen from "./screens/ProductDetailsScreen";
+import SellerDashboardScreen from "./screens/SellerDashboardScreen";
 
 function App() {
   const cart = useSelector((state) => state.cart);
@@ -98,24 +100,24 @@ function App() {
     <BrowserRouter>
       <div className="grid-container">
         <header className="row">
-          <div>
+          <div className="amazonalogo">
             <button
               type="button"
               className="open-sidebar"
               onClick={() => setSidebarIsOpen(true)}>
               <i className="fa fa-bars"></i>
             </button>
-            <Link className="brand" to="/">
-              amazona
+            <Link className="brand" to="/" style={{ color: "#e43030" }}>
+              BuyBuy
             </Link>
           </div>
-          <div>
+          <div className="searchbar">
             <Route
               render={({ history }) => (
                 <SearchBox history={history}></SearchBox>
               )}></Route>
           </div>
-          <div>
+          <div className="userstatus">
             <Link to="/cart">
               Cart
               {cartItems.length > 0 && (
@@ -152,6 +154,9 @@ function App() {
                 </Link>
                 <ul className="dropdown-content">
                   <li>
+                    <Link to="/sellerdashboard">Dashboard</Link>
+                  </li>
+                  <li>
                     <Link to="/productlist/seller">Products</Link>
                   </li>
                   <li>
@@ -167,7 +172,7 @@ function App() {
                 </Link>
                 <ul className="dropdown-content">
                   <li>
-                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/admindashboard">Dashboard</Link>
                   </li>
                   <li>
                     <Link to="/productlist">Products</Link>
@@ -276,8 +281,12 @@ function App() {
             path="/user/:id/edit"
             component={UserEditScreen}></AdminRoute>{" "}
           <AdminRoute
-            path="/dashboard"
-            component={DashboardScreen}></AdminRoute>
+            path="/admindashboard"
+            component={AdminDashboardScreen}></AdminRoute>
+          <SellerRoute
+            path="/sellerdashboard"
+            component={SellerDashboardScreen}
+            exact></SellerRoute>
           <SellerRoute
             path="/productlist/seller"
             component={ProductListScreen}
@@ -295,7 +304,10 @@ function App() {
             component={OrderListScreen}></SellerRoute>
           <Route path="/" component={HomeScreen} exact></Route>
         </main>
-        <footer className="row center">All right reserved</footer>
+        <footer className="row center">
+          {" "}
+          <p className="row center">All right reserved</p>
+        </footer>
       </div>
     </BrowserRouter>
   );

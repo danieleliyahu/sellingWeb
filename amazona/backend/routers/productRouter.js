@@ -91,16 +91,20 @@ productRouter.get(
 productRouter.get(
   "/:id",
   expressAsyncHandler(async (req, res) => {
-    const product = await Product.findById(req.params.id).populate(
-      "seller",
-      "seller.name seller.logo seller.rating seller.numReviews"
-    );
-    console.log(product);
-    if (product) {
+    try {
+      const product = await Product.findById(req.params.id).populate(
+        "seller",
+        "seller.name seller.logo seller.rating seller.numReviews"
+      );
       res.send(product);
-    } else {
+    } catch (err) {
       res.status(404).send({ message: "Product Not Found" });
     }
+    //   console.log(product);
+    //   if (product) {
+    //   } else {
+    //   }
+    // })
   })
 );
 
@@ -186,6 +190,7 @@ productRouter.post(
       console.log(user);
 
       const review = {
+        userId: req.user.id,
         name: user.name,
         rating: Number(req.body.rating),
         comment: req.body.comment,

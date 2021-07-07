@@ -17,7 +17,7 @@ import {
   Scatter,
   ResponsiveContainer,
 } from "recharts";
-const DashboardScreen = () => {
+const AdminDashboardScreen = () => {
   const salePerHourSaller = useSelector((state) => state.salePerHourSaller);
   const {
     loading: loadingSellerSalesPerHour,
@@ -36,8 +36,10 @@ const DashboardScreen = () => {
 
   return (
     <div>
-      <div className="row">
-        <h1>Dashboard</h1>
+      <div>
+        <h1 className="title" style={{ fontSize: "8rem" }}>
+          Admin Dashboard
+        </h1>
       </div>
       {loading ? (
         <LoadingBox></LoadingBox>
@@ -49,7 +51,7 @@ const DashboardScreen = () => {
             <li>
               <div className="summary-title color1">
                 <span>
-                  <i className="fa fa-users"></i>Users
+                  <i className="fa fa-users"></i> Users
                 </span>
               </div>
               <div className="summary-body">{summary.users[0].numUsers}</div>
@@ -57,7 +59,7 @@ const DashboardScreen = () => {
             <li>
               <div className="summary-title color2">
                 <span>
-                  <i className="fa fa-shopping-cart"></i>Orders
+                  <i className="fa fa-shopping-cart"></i> Orders
                 </span>
               </div>
               <div className="summary-body">
@@ -67,7 +69,7 @@ const DashboardScreen = () => {
             <li>
               <div className="summary-title color3">
                 <span>
-                  <i className="fa fa-money"></i>Sales
+                  <i className="fa fa-money"></i> Sales
                 </span>
               </div>
               <div className="summary-body">
@@ -80,7 +82,7 @@ const DashboardScreen = () => {
           </ul>
           <div>
             <div>
-              <h2>Sales</h2>
+              <h2 className="title">Monthly sales</h2>
               {console.log(summary.ThisMonthDailyOrders)}
               {console.log(summary.lastMonthDailyOrders)}
               {summary.ThisMonthDailyOrders.length === 0 ? (
@@ -155,66 +157,13 @@ const DashboardScreen = () => {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
-                // <Chart
-                //   width="100%"
-                //   height="400px"
-                //   chartType="AreaChart"
-                //   loader={<div>Loading Cart</div>}
-                //   data={[
-                //     ["Date", "Sales"],
-                //     ...summary.ThisMonthDailyOrders.map((x) => [
-                //       x._id,
-                //       x.sales,
-                //     ]),
-                //   ]}></Chart>
               )}
             </div>
           </div>
+
           <div>
             <div>
-              <h2>Sales per hour</h2>
-              {sellerSalesPerHour ? (
-                <Chart
-                  width="100%"
-                  height="400px"
-                  chartType="AreaChart"
-                  loader={<div>Loading Cart</div>}
-                  data={[
-                    ["Date", "Sales"],
-                    ...sellerSalesPerHour.dailyOrdersToday.map((x) => [
-                      x._id,
-                      x.orders,
-                    ]),
-                  ]}></Chart>
-              ) : (
-                ""
-              )}
-            </div>
-          </div>
-          <div>
-            <div>
-              <h2>orders per hour</h2>
-              {sellerSalesPerHour ? (
-                <Chart
-                  width="100%"
-                  height="400px"
-                  chartType="AreaChart"
-                  loader={<div>Loading Cart</div>}
-                  data={[
-                    ["Date", "Sales"],
-                    ...sellerSalesPerHour.dailyOrdersToday.map((x) => [
-                      x._id,
-                      x.sales,
-                    ]),
-                  ]}></Chart>
-              ) : (
-                ""
-              )}
-            </div>
-          </div>
-          <div>
-            <div>
-              <h2>Categories</h2>
+              <h2 className="title">Categories</h2>
               {summary.productCategories.length === 0 ? (
                 <MessageBox>No Sale</MessageBox>
               ) : (
@@ -231,7 +180,7 @@ const DashboardScreen = () => {
             </div>
           </div>
           <div>
-            <h2>Today Orders comper to Yesterday</h2>
+            <h2 className="title">Today's Orders</h2>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart data={sellerSalesPerHour.dailyOrdersToday}>
                 <defs>
@@ -277,7 +226,7 @@ const DashboardScreen = () => {
             </ResponsiveContainer>
           </div>
           <div>
-            <h2>Today Sales comper to Yesterday</h2>
+            <h2 className="title">Today's Sales</h2>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart data={sellerSalesPerHour.dailyOrdersToday}>
                 <defs>
@@ -340,4 +289,4 @@ const DashboardScreen = () => {
   );
 };
 
-export default DashboardScreen;
+export default AdminDashboardScreen;

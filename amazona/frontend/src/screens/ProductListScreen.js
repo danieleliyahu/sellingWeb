@@ -109,7 +109,7 @@ export default function ProductListScreen(props) {
                     onClick={() =>
                       props.history.push(`/product/${product._id}/details`)
                     }>
-                    Delete
+                    Statistics
                   </button>
                 </td>
               </tr>

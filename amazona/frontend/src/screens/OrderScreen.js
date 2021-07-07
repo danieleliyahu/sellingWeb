@@ -10,6 +10,7 @@ import {
   ORDER_DELIVER_RESET,
   ORDER_PAY_RESET,
 } from "../constants/orderConstants";
+import { combineReducers } from "redux";
 
 export default function OrderScreen(props) {
   const orderId = props.match.params.id;
@@ -19,7 +20,7 @@ export default function OrderScreen(props) {
   console.log(orderDetails);
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
-
+  const [ownThisOrder, setOwnThisOrder] = useState(false);
   const orderPay = useSelector((state) => state.orderPay);
   const {
     loading: loadingPay,
@@ -27,6 +28,10 @@ export default function OrderScreen(props) {
     success: successPay,
   } = orderPay;
 
+  useEffect(async () => {
+    const { data } = await Axios.get(`/api/analysis/sellerorder/${orderId}`);
+    setOwnThisOrder(data);
+  }, []);
   const orderDeliver = useSelector((state) => state.orderDeliver);
   const {
     loading: loadingDeliver,
@@ -84,7 +89,7 @@ export default function OrderScreen(props) {
         <div className="col-2">
           <ul>
             <li>
-              <div className="card card-body">
+              <div className="paymentcard card-body">
                 <h2>Shipping</h2>
                 <p>
                   <strong>Name:</strong> {order.shippingAddress.fullName} <br />
@@ -103,7 +108,7 @@ export default function OrderScreen(props) {
               </div>
             </li>
             <li>
-              <div className="card card-body">
+              <div className="paymentcard card-body">
                 <h2>Payment</h2>
                 <p>
                   <strong>Method:</strong> {order.paymentMethod}
@@ -118,7 +123,7 @@ export default function OrderScreen(props) {
               </div>
             </li>
             <li>
-              <div className="card card-body">
+              <div className="paymentcard card-body">
                 <h2>Order Items</h2>
                 <ul>
                   {order.orderItems.map((item) => (
@@ -148,7 +153,7 @@ export default function OrderScreen(props) {
           </ul>
         </div>
         <div className="col-1">
-          <div className="card card-body">
+          <div className="paymentcard card-body">
             <ul>
               <li>
                 <h2>Order Summary</h2>
@@ -199,20 +204,22 @@ export default function OrderScreen(props) {
                   )}
                 </li>
               )}
-              {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
-                <li>
-                  {loadingDeliver && <LoadingBox></LoadingBox>}
-                  {errorDeliver && (
-                    <MessageBox variant="danger">{errorDeliver}</MessageBox>
-                  )}
-                  <button
-                    type="button"
-                    className="primary block"
-                    onClick={deliverHandler}>
-                    Deliver Order
-                  </button>
-                </li>
-              )}
+              {(ownThisOrder || userInfo.isAdmin) &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <li>
+                    {loadingDeliver && <LoadingBox></LoadingBox>}
+                    {errorDeliver && (
+                      <MessageBox variant="danger">{errorDeliver}</MessageBox>
+                    )}
+                    <button
+                      type="button"
+                      className="primary block"
+                      onClick={deliverHandler}>
+                      Deliver Order
+                    </button>
+                  </li>
+                )}
             </ul>
           </div>
         </div>

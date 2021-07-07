@@ -67,7 +67,7 @@ export default function ProductScreen(props) {
                 {product.length !== 0
                   ? product.image.map((image, i) => {
                       return (
-                        <>
+                        <div className="switchPhoto">
                           {
                             <img
                               onClick={(e) => setImage(e.target.src)}
@@ -75,7 +75,7 @@ export default function ProductScreen(props) {
                               src={image}
                               alt={product.name}></img>
                           }
-                        </>
+                        </div>
                       );
                     })
                   : ""}

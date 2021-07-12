@@ -132,13 +132,20 @@ function App() {
                 </Link>
                 <ul className="dropdown-content">
                   <li>
-                    <Link to="/profile">User profile</Link>
+                    <Link style={{ paddingRight: "0rem" }} to="/profile">
+                      User profile
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/orderhistory">Order History</Link>
+                    <Link style={{ paddingRight: "0rem" }} to="/orderhistory">
+                      Order History
+                    </Link>
                   </li>
                   <li>
-                    <Link to="#signout" onClick={signoutHandler}>
+                    <Link
+                      style={{ paddingRight: "0rem" }}
+                      to="#signout"
+                      onClick={signoutHandler}>
                       Sign Out
                     </Link>
                   </li>
@@ -154,13 +161,25 @@ function App() {
                 </Link>
                 <ul className="dropdown-content">
                   <li>
-                    <Link to="/sellerdashboard">Dashboard</Link>
+                    <Link
+                      style={{ paddingRight: "0rem" }}
+                      to="/sellerdashboard">
+                      Dashboard
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/productlist/seller">Products</Link>
+                    <Link
+                      style={{ paddingRight: "0rem" }}
+                      to="/productlist/seller">
+                      Products
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/orderlist/seller">Orders</Link>
+                    <Link
+                      style={{ paddingRight: "0rem" }}
+                      to="/orderlist/seller">
+                      Orders
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -172,16 +191,24 @@ function App() {
                 </Link>
                 <ul className="dropdown-content">
                   <li>
-                    <Link to="/admindashboard">Dashboard</Link>
+                    <Link style={{ paddingRight: "0rem" }} to="/admindashboard">
+                      Dashboard
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/productlist">Products</Link>
+                    <Link style={{ paddingRight: "0rem" }} to="/productlist">
+                      Products
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/orderlist">Orders</Link>
+                    <Link style={{ paddingRight: "0rem" }} to="/orderlist">
+                      Orders
+                    </Link>
                   </li>
                   <li>
-                    <Link to="/userlist">Users</Link>
+                    <Link style={{ paddingRight: "0rem" }} to="/userlist">
+                      Users
+                    </Link>
                   </li>
                 </ul>
               </div>

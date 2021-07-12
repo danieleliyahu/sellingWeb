@@ -55,7 +55,7 @@ const SigninScreen = (props) => {
             }}></input>
         </div>
         <div>
-          <label htmlFor="password">Password address</label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
@@ -80,13 +80,15 @@ const SigninScreen = (props) => {
             </Link>
           </div>
           <div>
-            New customer?{" "}
+            shop owner?{" "}
             <Link to={`/registerasseller?redirect=${redirect}`}>
               Start your own shop
             </Link>
-            <Link to={`/forgotpass?redirect=${redirect}`}>
-              Don't remember your password?
-            </Link>
+            <div>
+              <Link to={`/forgotpass?redirect=${redirect}`}>
+                Forgot your password?
+              </Link>
+            </div>
           </div>
         </div>
       </form>

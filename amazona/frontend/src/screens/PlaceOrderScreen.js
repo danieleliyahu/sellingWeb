@@ -40,11 +40,11 @@ const PlaceOrderScreen = (props) => {
           <ul>
             <li>
               <div className="paymentcard card-body">
-                <h2>Shipping</h2>
-                <p>
-                  <strong>Name:</strong> {cart.shippingAddress.fullName}
+                <h2 className="ordertitle">Shipping</h2>
+                <p className="orderkey">
+                  <strong>Name :</strong> {cart.shippingAddress.fullName}
                   <br />
-                  <strong>Name:</strong> {cart.shippingAddress.address},
+                  <strong>Address :</strong> {cart.shippingAddress.address},
                   {cart.shippingAddress.city},{cart.shippingAddress.postalCode},
                   {cart.shippingAddress.country},
                 </p>
@@ -52,15 +52,15 @@ const PlaceOrderScreen = (props) => {
             </li>
             <li>
               <div className="paymentcard card-body">
-                <h2>Payment</h2>
-                <p>
+                <h2 className="ordertitle">Payment</h2>
+                <p className="orderkey">
                   <strong>Method:</strong> {cart.paymentMethod}
                 </p>
               </div>
             </li>
             <li>
               <div className="paymentcard card-body">
-                <h2>Order Items</h2>
+                <h2 className="ordertitle">Order Items</h2>
                 <ul>
                   {cart.cartItems.map((item) => (
                     <li key={item.product}>
@@ -91,7 +91,7 @@ const PlaceOrderScreen = (props) => {
           <div className="paymentcard card-body">
             <ul>
               <li>
-                <h2>Order Summary</h2>
+                <h2 className="ordertitle">Order Summary</h2>
               </li>
               <li>
                 <div className="row">

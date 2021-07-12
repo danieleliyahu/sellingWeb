@@ -72,7 +72,7 @@ const RegisterScreen = (props) => {
             onChange={(e) => setEmail(e.target.value)}></input>
         </div>
         <div>
-          <label htmlFor="password">Password address</label>
+          <label htmlFor="password">Password </label>
           <input
             type="password"
             id="password"

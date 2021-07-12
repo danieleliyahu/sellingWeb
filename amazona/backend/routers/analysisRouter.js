@@ -237,10 +237,9 @@ analysisRouter.get(
           lastweek,
           req.user.id
         )),
-        (moneyMade["moneyMadeBefore2Weeks"] = await moneySellerMade(
-          lastweek,
-          req.user.id,
-          before2Weeks
+        (moneyMade["lastMonth"] = await moneySellerMade(
+          thisMonth,
+          req.user.id
         )),
         (moneyMade["allTime"] = await moneySellerMadeAllTime(req.user.id)),
         console.log(moneyMade);

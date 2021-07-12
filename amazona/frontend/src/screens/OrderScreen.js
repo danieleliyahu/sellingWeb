@@ -27,7 +27,7 @@ export default function OrderScreen(props) {
     error: errorPay,
     success: successPay,
   } = orderPay;
-
+  console.log(orderPay);
   useEffect(async () => {
     const { data } = await Axios.get(`/api/analysis/sellerorder/${orderId}`);
     setOwnThisOrder(data);
@@ -90,10 +90,11 @@ export default function OrderScreen(props) {
           <ul>
             <li>
               <div className="paymentcard card-body">
-                <h2>Shipping</h2>
-                <p>
-                  <strong>Name:</strong> {order.shippingAddress.fullName} <br />
-                  <strong>Address: </strong> {order.shippingAddress.address},
+                <h2 className="ordertitle">Shipping</h2>
+                <p className="orderkey">
+                  <strong>Name :</strong> {order.shippingAddress.fullName}{" "}
+                  <br />
+                  <strong>Address : </strong> {order.shippingAddress.address},
                   {order.shippingAddress.city},{" "}
                   {order.shippingAddress.postalCode},
                   {order.shippingAddress.country}
@@ -109,9 +110,9 @@ export default function OrderScreen(props) {
             </li>
             <li>
               <div className="paymentcard card-body">
-                <h2>Payment</h2>
-                <p>
-                  <strong>Method:</strong> {order.paymentMethod}
+                <h2 className="ordertitle">Payment</h2>
+                <p className="orderkey">
+                  <strong>Method :</strong> {order.paymentMethod}
                 </p>
                 {order.isPaid ? (
                   <MessageBox variant="success">
@@ -124,7 +125,7 @@ export default function OrderScreen(props) {
             </li>
             <li>
               <div className="paymentcard card-body">
-                <h2>Order Items</h2>
+                <h2 className="ordertitle">Order Items</h2>
                 <ul>
                   {order.orderItems.map((item) => (
                     <li key={item.product}>
@@ -156,7 +157,7 @@ export default function OrderScreen(props) {
           <div className="paymentcard card-body">
             <ul>
               <li>
-                <h2>Order Summary</h2>
+                <h2 className="ordertitle">Order Summary</h2>
               </li>
               <li>
                 <div className="row">

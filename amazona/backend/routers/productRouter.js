@@ -10,7 +10,7 @@ const productRouter = express.Router();
 productRouter.get(
   "/",
   expressAsyncHandler(async (req, res) => {
-    const pageSize = 3;
+    const pageSize = 9;
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || "";
     const category = req.query.category || "";
@@ -72,19 +72,19 @@ productRouter.get(
   "/seed",
   expressAsyncHandler(async (req, res) => {
     // await Product.remove({});
-    const seller = await User.findOne({ isSeller: true });
-    if (seller) {
-      const products = data.products.map((product) => ({
-        ...product,
-        seller: seller._id,
-      }));
-      const createdProducts = await Product.insertMany(products);
-      res.send({ createdProducts });
-    } else {
-      res
-        .status(500)
-        .send({ message: "No seller found. first run /api/users/seed" });
-    }
+    // const seller = await User.findOne({ isSeller: true });
+    // if (seller) {
+    //   const products = data.products.map((product) => ({
+    //     ...product,
+    //     seller: seller._id,
+    //   }));
+    const createdProducts = await Product.insertMany(data.products);
+    res.send({ createdProducts });
+    // } else {
+    //   res
+    //     .status(500)
+    //     .send({ message: "No seller found. first run /api/users/seed" });
+    // }
   })
 );
 

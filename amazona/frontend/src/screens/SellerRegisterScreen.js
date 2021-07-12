@@ -105,7 +105,7 @@ const SellerRegisterScreen = (props) => {
             onChange={(e) => setEmail(e.target.value)}></input>
         </div>
         <div>
-          <label htmlFor="password">Password address</label>
+          <label htmlFor="password">Password </label>
           <input
             type="password"
             id="password"
@@ -128,7 +128,7 @@ const SellerRegisterScreen = (props) => {
         <>
           <h2>Seller</h2>
           <div>
-            <label htmlFor="sellerName">Seller Name</label>
+            <label htmlFor="sellerName">Shop name</label>
             <input
               id="sellerName"
               type="text"
@@ -137,7 +137,7 @@ const SellerRegisterScreen = (props) => {
               onChange={(e) => setSellerName(e.target.value)}></input>
           </div>
           <div>
-            <label htmlFor="sellerLogo">Seller Logo</label>
+            <label htmlFor="sellerLogo">shop Logo</label>
             <input
               id="sellerLogo"
               type="file"
@@ -149,7 +149,7 @@ const SellerRegisterScreen = (props) => {
             <MessageBox variant="danger">{errorUpload}</MessageBox>
           )}
           <div>
-            <label htmlFor="sellerDescription">Seller Description</label>
+            <label htmlFor="sellerDescription">shop Description</label>
             <input
               id="sellerDescription"
               type="text"

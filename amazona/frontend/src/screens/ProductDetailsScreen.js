@@ -44,41 +44,63 @@ const ProductDetailsScreen = (props) => {
         <MessageBox variant="danger">{error}</MessageBox>
       ) : (
         <div>
-          <ul className="card card-body">
-            <li>
-              <div className="p-1">
-                <h1>
-                  {product.name} ({product.brand})
-                </h1>
-              </div>
-              <div className="row start">
-                <div className="p-1">
-                  <Link to={`/product/${productId}`}>
-                    <img
-                      className="medium"
-                      id="productdetailsimg"
-                      src={product.image[0]}
-                      alt={product.name}></img>
-                  </Link>
-                </div>
-              </div>
-            </li>
-            <li>
-              <Rating
-                rating={product.rating}
-                numReviews={product.numReviews}></Rating>
-            </li>
-            <li></li>
-            <li>{product.description}</li>
-          </ul>
+          <h1 className="title" style={{ fontSize: "6rem" }}>
+            Product statistics
+          </h1>
+          <div className="row top ">
+            <div className="col-2 productContainer">
+              <ul className="card card-body " style={{ height: "fit-content" }}>
+                <li>
+                  <div className="p-1">
+                    <h1>
+                      {product.name} ({product.brand})
+                    </h1>
+                  </div>
+                  <div className="row start">
+                    <div className="p-1">
+                      <Link to={`/product/${productId}`}>
+                        <img
+                          className="medium"
+                          id="productdetailsimg"
+                          src={product.image[0]}
+                          alt={product.name}></img>
+                      </Link>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <Rating
+                    rating={product.rating}
+                    numReviews={product.numReviews}></Rating>
+                </li>
+                <li></li>
+                <li>{product.description}</li>
+              </ul>
+            </div>
+            <div className="reviewul col-1 productinfo">
+              {" "}
+              <ul>
+                {console.log(product)}
+                {product.reviews.map((review) => (
+                  <li key={review._id}>
+                    <strong>{review.name}</strong>
+                    <Rating rating={review.rating} caption=" "></Rating>
+                    <p>{review.createdAt.substring(0, 10)}</p>
+                    <p className="comment">{review.comment}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
           <div>
-            {console.log(productSold)}
             {productSold ? (
               <div>
+                <h2 className="title">Sales</h2>
+
                 <ul className="row summary">
                   <li>
                     <div className="summary-title color1">
-                      <span className="textdeshbord">Pieces sold today</span>
+                      <span className="textdeshbord">Items Sold Today</span>
                     </div>
                     <div className="summary-body">
                       <div className="comperdiv">
@@ -104,6 +126,12 @@ const ProductDetailsScreen = (props) => {
                     </div>
                   </li>
                   <li>
+                    <div className="summary-title color3">
+                      <span className="textdeshbord">Total Items Sold</span>
+                    </div>
+                    <div className="summary-body">{productSoldAllTime}</div>
+                  </li>
+                  <li>
                     <div className="summary-title color2">
                       <span className="textdeshbord">Today's Revenues</span>
                     </div>
@@ -114,12 +142,6 @@ const ProductDetailsScreen = (props) => {
                       <span className="textdeshbord">Total Revenues</span>
                     </div>
                     <div className="summary-body">{moneyErendAllTime}$</div>
-                  </li>
-                  <li>
-                    <div className="summary-title color3">
-                      <span className="textdeshbord">Total pieces sold</span>
-                    </div>
-                    <div className="summary-body">{productSoldAllTime}</div>
                   </li>
                 </ul>
               </div>

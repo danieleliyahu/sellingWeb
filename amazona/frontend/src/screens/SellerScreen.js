@@ -62,7 +62,7 @@ const SellerScreen = (props) => {
             <MessageBox variant="danger">{error}</MessageBox>
           ) : (
             <>
-              <ul className="card card-body">
+              <ul style={{ height: "fit-content" }} className="card card-body">
                 <li>
                   <div className="row start">
                     <div className="p-1">

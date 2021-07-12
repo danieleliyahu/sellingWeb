@@ -65,7 +65,7 @@ const SellerDashboardScreen = () => {
             <>
               <h2 className="title">Revenues</h2>
               <ul className="row summary ">
-                <li id="alltime">
+                <li>
                   <div className="summary-title color2 ">
                     <span className="textdeshbord">All time</span>
                   </div>
@@ -102,7 +102,7 @@ const SellerDashboardScreen = () => {
                     <span className="textdeshbord">Last Month</span>
                   </div>
                   <div className="summary-body">
-                    ${moneyAnalysis.moneyMadeBefore2Weeks[0].money}
+                    ${moneyAnalysis.lastMonth[0].money}
                   </div>
                 </li>
               </ul>

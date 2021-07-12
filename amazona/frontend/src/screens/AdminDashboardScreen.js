@@ -82,7 +82,7 @@ const AdminDashboardScreen = () => {
           </ul>
           <div>
             <div>
-              <h2 className="title">Monthly sales</h2>
+              <h2 className="title">Monthly Sales</h2>
               {console.log(summary.ThisMonthDailyOrders)}
               {console.log(summary.lastMonthDailyOrders)}
               {summary.ThisMonthDailyOrders.length === 0 ? (
@@ -179,110 +179,130 @@ const AdminDashboardScreen = () => {
               )}
             </div>
           </div>
-          <div>
-            <h2 className="title">Today's Orders</h2>
-            <ResponsiveContainer width="100%" height={400}>
-              <AreaChart data={sellerSalesPerHour.dailyOrdersToday}>
-                <defs>
-                  <linearGradient id="today" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="82ca9d"
-                      stopOpacity={0.4}></stop>
-                    <stop
-                      offset="75%"
-                      stopColor="82ca9d"
-                      stopOpacity={0.05}></stop>
-                  </linearGradient>
-                  <linearGradient id="yesterday" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="8884d8"
-                      stopOpacity={0.4}></stop>
-                    <stop
-                      offset="75%"
-                      stopColor="82ca9d"
-                      stopOpacity={0.05}></stop>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="_id"></XAxis>
-                <YAxis></YAxis>
-                <Area
-                  name="today orders"
-                  data={sellerSalesPerHour.dailyOrdersToday}
-                  stroke="#82ca9d"
-                  dataKey="orders"
-                  fill="url(#color)"></Area>{" "}
-                <Area
-                  name="yesterday orders"
-                  data={sellerSalesPerHour.dailyOrdersYesterDay}
-                  stroke="#8884d8"
-                  dataKey="orders"
-                  fill="url(#yesterday)"></Area>
-                <Tooltip></Tooltip>
-                <CartesianGrid opacity={0.8} vertical={false}></CartesianGrid>
-                <Legend />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div>
-            <h2 className="title">Today's Sales</h2>
-            <ResponsiveContainer width="100%" height={400}>
-              <AreaChart data={sellerSalesPerHour.dailyOrdersToday}>
-                <defs>
-                  <linearGradient id="today" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="82ca9d"
-                      stopOpacity={0.4}></stop>
-                    <stop
-                      offset="75%"
-                      stopColor="82ca9d"
-                      stopOpacity={0.05}></stop>
-                  </linearGradient>
-                  <linearGradient id="yesterday" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="8884d8"
-                      stopOpacity={0.4}></stop>
-                    <stop
-                      offset="75%"
-                      stopColor="8884d8"
-                      stopOpacity={0.05}></stop>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="_id"></XAxis>
-                <YAxis></YAxis>
-                <Area
-                  name="today sales"
-                  data={sellerSalesPerHour.dailyOrdersToday}
-                  stroke="#82ca9d"
-                  dataKey="sales"
-                  fill="url(#color)"></Area>{" "}
-                <Area
-                  name="yesterday sales"
-                  data={sellerSalesPerHour.dailyOrdersYesterDay}
-                  stroke="#8884d8"
-                  dataKey="sales"
-                  fill="url(#yesterday)"></Area>
-                <Tooltip></Tooltip>
-                <CartesianGrid opacity={0.8} vertical={false}></CartesianGrid>
-                <Legend />
-                <Scatter
-                  data={sellerSalesPerHour.dailyOrdersToday}
-                  fill="#8884d8"
-                  line
-                  shape="cross"
-                />
-                <Scatter
-                  data={sellerSalesPerHour.dailyOrdersYesterDay}
-                  fill="#82ca9d"
-                  line
-                  shape="diamond"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {sellerSalesPerHour ? (
+            <>
+              <div>
+                <h2 className="title">Today's Orders</h2>
+                <ResponsiveContainer width="100%" height={400}>
+                  <AreaChart data={sellerSalesPerHour.dailyOrdersToday}>
+                    <defs>
+                      <linearGradient id="today" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="0%"
+                          stopColor="82ca9d"
+                          stopOpacity={0.4}></stop>
+                        <stop
+                          offset="75%"
+                          stopColor="82ca9d"
+                          stopOpacity={0.05}></stop>
+                      </linearGradient>
+                      <linearGradient
+                        id="yesterday"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1">
+                        <stop
+                          offset="0%"
+                          stopColor="8884d8"
+                          stopOpacity={0.4}></stop>
+                        <stop
+                          offset="75%"
+                          stopColor="82ca9d"
+                          stopOpacity={0.05}></stop>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="_id"></XAxis>
+                    <YAxis></YAxis>
+                    <Area
+                      name="today orders"
+                      data={sellerSalesPerHour.dailyOrdersToday}
+                      stroke="#82ca9d"
+                      dataKey="orders"
+                      fill="url(#color)"></Area>{" "}
+                    <Area
+                      name="yesterday orders"
+                      data={sellerSalesPerHour.dailyOrdersYesterDay}
+                      stroke="#8884d8"
+                      dataKey="orders"
+                      fill="url(#yesterday)"></Area>
+                    <Tooltip></Tooltip>
+                    <CartesianGrid
+                      opacity={0.8}
+                      vertical={false}></CartesianGrid>
+                    <Legend />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div>
+                <h2 className="title">Today's Sales</h2>
+                <ResponsiveContainer width="100%" height={400}>
+                  <AreaChart data={sellerSalesPerHour.dailyOrdersToday}>
+                    <defs>
+                      <linearGradient id="today" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="0%"
+                          stopColor="82ca9d"
+                          stopOpacity={0.4}></stop>
+                        <stop
+                          offset="75%"
+                          stopColor="82ca9d"
+                          stopOpacity={0.05}></stop>
+                      </linearGradient>
+                      <linearGradient
+                        id="yesterday"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1">
+                        <stop
+                          offset="0%"
+                          stopColor="8884d8"
+                          stopOpacity={0.4}></stop>
+                        <stop
+                          offset="75%"
+                          stopColor="8884d8"
+                          stopOpacity={0.05}></stop>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="_id"></XAxis>
+                    <YAxis></YAxis>
+                    <Area
+                      name="today sales"
+                      data={sellerSalesPerHour.dailyOrdersToday}
+                      stroke="#82ca9d"
+                      dataKey="sales"
+                      fill="url(#color)"></Area>{" "}
+                    <Area
+                      name="yesterday sales"
+                      data={sellerSalesPerHour.dailyOrdersYesterDay}
+                      stroke="#8884d8"
+                      dataKey="sales"
+                      fill="url(#yesterday)"></Area>
+                    <Tooltip></Tooltip>
+                    <CartesianGrid
+                      opacity={0.8}
+                      vertical={false}></CartesianGrid>
+                    <Legend />
+                    <Scatter
+                      data={sellerSalesPerHour.dailyOrdersToday}
+                      fill="#8884d8"
+                      line
+                      shape="cross"
+                    />
+                    <Scatter
+                      data={sellerSalesPerHour.dailyOrdersYesterDay}
+                      fill="#82ca9d"
+                      line
+                      shape="diamond"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          ) : (
+            ""
+          )}
         </>
       )}
     </div>

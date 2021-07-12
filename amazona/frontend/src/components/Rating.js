@@ -4,6 +4,12 @@ const Rating = (props) => {
   const { rating, numReviews, caption } = props;
   return (
     <div className="rating">
+      {caption ? (
+        <span>{caption}</span>
+      ) : (
+        <div
+          style={{ marginBottom: "2.6px" }}>{`reviews (${numReviews}) `}</div>
+      )}
       <span>
         <i
           className={
@@ -54,11 +60,6 @@ const Rating = (props) => {
               : "fa fa-star-o"
           }></i>
       </span>
-      {caption ? (
-        <span>{caption}</span>
-      ) : (
-        <span>{numReviews + " reviews"}</span>
-      )}
     </div>
   );
 };

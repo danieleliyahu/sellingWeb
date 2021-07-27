@@ -107,7 +107,9 @@ export default function ProductScreen(props) {
                   <p>{product.description}</p>
                 </li>
               </ul>
-              <div className="card card-body autoheight removeborder">
+              <div
+                className="card card-body autoheight removeborder"
+                style={{ padding: "0rem" }}>
                 <ul>
                   <li>
                     <div className="row">
@@ -179,10 +181,10 @@ export default function ProductScreen(props) {
             </div>
           </div>
           <div>
+            {product.reviews.length === 0 &&
+              // <MessageBox>There is no review</MessageBox>
+              ""}
             <h2 id="reviews">Reviews</h2>
-            {product.reviews.length === 0 && (
-              <MessageBox>There is no review</MessageBox>
-            )}
 
             <ul>
               <li>

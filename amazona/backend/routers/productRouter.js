@@ -162,12 +162,23 @@ productRouter.put(
 productRouter.delete(
   "/:id",
   isAuth,
-  isAdmin,
+  isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
+    console.log(product._id, req.user.id);
     if (product) {
-      const deleteProduct = await product.remove();
-      res.send({ message: "Product Deleted", product: deleteProduct });
+      if (req.isSeller && !req.isAdmin) {
+        if (product.seller === req.user.id) {
+          return res
+            .status(404)
+            .send({ message: "sory you dont own this product" });
+        }
+        const deleteProduct = await product.remove();
+        res.send({ message: "Product Deleted", product: deleteProduct });
+      } else {
+        const deleteProduct = await product.remove();
+        res.send({ message: "Product Deleted", product: deleteProduct });
+      }
     } else {
       res.status(404).send({ message: "Product Not Found" });
     }

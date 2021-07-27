@@ -65,7 +65,7 @@ const CartScreen = (props) => {
                     variant="outlined"
                     className={classes.formControl}>
                     <InputLabel htmlFor="outlined-age-native-simple">
-                      Age
+                      stock
                     </InputLabel>
                     <Select
                       value={item.qty}

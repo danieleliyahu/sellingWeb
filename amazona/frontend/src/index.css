@@ -51,9 +51,16 @@ header {
   display: flex;
   align-items: center;
   /* padding-right: 2rem; */
+  margin-right: 6rem;
 }
-.userstatus a {
-  padding-right: 6rem;
+/* .userstatus a {
+  margin-right: 6rem;
+} */
+.userstatus li a {
+  padding: 0rem;
+}
+.userstatus li ul {
+  width: fit-content;
 }
 main {
   width: 70%;
@@ -147,7 +154,7 @@ button.small {
 /* Header */
 header a {
   color: #ffffff;
-  padding: 1rem;
+  padding: 1rem 3rem;
 }
 a.brand {
   color: #ffffff;
@@ -303,9 +310,9 @@ img.large {
   color: #f0c040;
   margin: 0.1rem;
 }
-.rating span:last-child {
+/* .rating span:last-child {
   color: #404040;
-}
+} */
 /* Alert */
 .loading {
   display: block !important;
@@ -674,14 +681,14 @@ input[type="number"]::-webkit-outer-spin-button {
 .removeborder {
   box-shadow: none;
   border: none;
-  /* padding: 2rem; */
+  padding: 3rem;
   line-height: 1.6;
 }
 .sellerlicard {
   display: flex;
   flex-direction: column;
-  padding: 2rem;
   line-height: 1.6;
+  padding: 2rem;
 }
 .borderkey {
   font-weight: bold;
@@ -692,4 +699,22 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .orderkey {
   font-size: 1.9rem;
+}
+#upspan {
+  color: black;
+}
+.open {
+  background-color: white;
+}
+.open li {
+  transition: 0.8s;
+}
+.open li:hover {
+  background-color: rgb(101, 108, 197);
+}
+header a {
+  transition: 0.8s;
+}
+header a:hover {
+  border: solid white 1px;
 }

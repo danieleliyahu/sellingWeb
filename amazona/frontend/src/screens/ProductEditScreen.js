@@ -109,7 +109,7 @@ export default function ProductEditScreen(props) {
                 onChange={(e) => setName(e.target.value)}></input>
             </div>
             <div>
-              <label htmlFor="price">Price</label>
+              <label htmlFor="price">Price ($)</label>
               <input
                 id="price"
                 type="number"

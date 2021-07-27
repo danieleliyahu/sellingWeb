@@ -5,7 +5,7 @@ const Rating = (props) => {
   return (
     <div className="rating">
       {caption ? (
-        <span>{caption}</span>
+        <span id="upspan">{caption}</span>
       ) : (
         <div
           style={{ marginBottom: "2.6px" }}>{`reviews (${numReviews}) `}</div>

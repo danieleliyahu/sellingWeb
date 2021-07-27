@@ -7,6 +7,7 @@ import {
   Router,
   useHistory,
 } from "react-router-dom";
+import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import { signout, userInformation } from "./actions/userActions";
 import CartScreen from "./screens/CartScreen";
 import HomeScreen from "./screens/HomeScreen";
@@ -107,7 +108,10 @@ function App() {
               onClick={() => setSidebarIsOpen(true)}>
               <i className="fa fa-bars"></i>
             </button>
-            <Link className="brand" to="/" style={{ color: "#e43030" }}>
+            <Link
+              className="brand"
+              to="/"
+              style={{ color: "rgb(236 205 205)" }}>
               BuyBuy
             </Link>
           </div>
@@ -119,7 +123,9 @@ function App() {
           </div>
           <div className="userstatus">
             <Link to="/cart">
-              Cart
+              <i
+                className="fa fa-shopping-cart"
+                style={{ fontSize: "2rem" }}></i>
               {cartItems.length > 0 && (
                 <span className="badge">{cartItems.length} </span>
               )}
@@ -231,15 +237,24 @@ function App() {
             ) : errorCategories ? (
               <MessageBox variant="danger">{errorCategories}</MessageBox>
             ) : (
-              categories.map((c) => (
-                <li key={c}>
+              <>
+                <li>
                   <Link
                     onClick={() => setSidebarIsOpen(false)}
-                    to={`/search/category/${c}`}>
-                    {c}
+                    to={`/search/category/${"all"}`}>
+                    Any
                   </Link>
                 </li>
-              ))
+                {categories.map((c) => (
+                  <li key={c}>
+                    <Link
+                      onClick={() => setSidebarIsOpen(false)}
+                      to={`/search/category/${c}`}>
+                      {c}
+                    </Link>
+                  </li>
+                ))}
+              </>
             )}
           </ul>
         </aside>

@@ -58,10 +58,14 @@ export const sendMail = (to, url, txt) => {
         </div>
         `,
   };
-  smtpTransport.sendMail(mailOptions, (err, infor) => {
-    if (err) return err;
-    return infor;
-  });
+  try {
+    smtpTransport.sendMail(mailOptions, (err, infor) => {
+      if (err) return err;
+      return infor;
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 export const sendMailWhenOrder = (to, order) => {
   oauth2Client.setCredentials({

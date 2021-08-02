@@ -1,2 +1,4 @@
-amazona/.env
-amazona/backend/.env
+/node_modules
+
+.env 
+/uploads/*.jpg

@@ -1,5 +1,5 @@
-import axios from "axios";
-import Axios from "axios";
+import Axios from "../axios.js";
+
 import { CART_EMPTY } from "../constants/cartConstants";
 import {
   ORDER_CREATE_FAIL,
@@ -26,6 +26,9 @@ import {
   ORDER_SUMMERY_FAIL,
   ORDER_SUMMERY_SUCCESS,
   ORDER_SUMMERY_REQUEST,
+  SALEPERHOUR_SUMMERY_SUCCESS,
+  SALEPERHOUR_SUMMERY_FAIL,
+  SALEPERHOUR_SUMMERY_REQUEST,
 } from "../constants/orderConstants";
 
 export const createOrder = (order) => async (dispatch, getState) => {
@@ -34,11 +37,7 @@ export const createOrder = (order) => async (dispatch, getState) => {
     const {
       userSignin: { userInfo },
     } = getState();
-    const { data } = await Axios.post("/api/orders", order, {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    });
+    const { data } = await Axios.post("/api/orders", order);
     dispatch({ type: ORDER_CREATE_SUCCESS, payload: data.order });
     dispatch({ type: CART_EMPTY });
     localStorage.removeItem("cartItems");
@@ -59,9 +58,8 @@ export const detailsOrder = (orderId) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.get(`/api/orders/${orderId}`, {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = await Axios.get(`/api/orders/${orderId}`);
+    console.log(data);
     dispatch({ type: ORDER_DETAILS_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -79,13 +77,7 @@ export const payOrder =
       userSignin: { userInfo },
     } = getState();
     try {
-      const { data } = Axios.put(
-        `/api/orders/${order._id}/pay`,
-        paymentResult,
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        }
-      );
+      const { data } = Axios.put(`/api/orders/${order._id}/pay`, paymentResult);
       dispatch({ type: ORDER_PAY_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -101,11 +93,8 @@ export const listOrderMine = () => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.get("/api/orders/mine", {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
-    });
+    const { data } = await Axios.get("/api/orders/mine");
+
     dispatch({ type: ORDER_MINE_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -123,10 +112,8 @@ export const listOrders =
       userSignin: { userInfo },
     } = getState();
     try {
-      const { data } = await Axios.get(`/api/orders?seller=${seller}`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      });
-      console.log(data);
+      const { data } = await Axios.get(`/api/orders?seller=${seller}`);
+
       dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -161,13 +148,7 @@ export const deliverOrder = (orderId) => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = Axios.put(
-      `/api/orders/${orderId}/deliver`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      }
-    );
+    const { data } = Axios.put(`/api/orders/${orderId}/deliver`);
     dispatch({ type: ORDER_DELIVER_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -183,13 +164,29 @@ export const summaryOrder = () => async (dispatch, getState) => {
     userSignin: { userInfo },
   } = getState();
   try {
-    const { data } = await Axios.get("/api/orders/summary", {
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    });
+    const { data } = await Axios.get("/api/analysis/summary");
+    console.log(data);
     dispatch({ type: ORDER_SUMMERY_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
       type: ORDER_SUMMERY_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
+export const salePerHourForSaller = () => async (dispatch, getState) => {
+  dispatch({ type: SALEPERHOUR_SUMMERY_REQUEST });
+
+  try {
+    const { data } = await Axios.get("/api/analysis/salesperhour");
+    console.log(data);
+    dispatch({ type: SALEPERHOUR_SUMMERY_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: SALEPERHOUR_SUMMERY_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message

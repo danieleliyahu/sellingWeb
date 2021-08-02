@@ -1,4 +1,3 @@
-import data from "./data";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 import thunk from "redux-thunk";
 import {
@@ -12,10 +11,16 @@ import {
 } from "./reducers/productReducers";
 import { cartReducer } from "./reducers/cartReducers";
 import {
+  forgotPasswordReducer,
+  resetPasswordReducer,
+  sellerRegisterReducer,
+  userActivateReducer,
   userDeleteReducer,
   userDetailsReducer,
+  userInformationReducer,
   userListReducer,
   userRegisterReducer,
+  userReviewCreateReducer,
   userSigninReducer,
   userTopSellersListReducer,
   userUpdateProfileReducer,
@@ -30,7 +35,14 @@ import {
   orderMineListReducer,
   orderPayReducer,
   orderSummaryReducer,
+  salePerHourForSallerSummaryReducer,
 } from "./reducers/orderReducers";
+import {
+  productAnalysisReducer,
+  sellerMoneyAnalysisReducer,
+  sellerMonthlyAnalysisReducer,
+} from "./reducers/analysisReducers";
+
 const initialState = {
   userSignin: {
     userInfo: localStorage.getItem("userInfo")
@@ -53,6 +65,7 @@ const reducer = combineReducers({
   cart: cartReducer,
   userSignin: userSigninReducer,
   userRegister: userRegisterReducer,
+  sellerRegister: sellerRegisterReducer,
   orderCreate: orderCreateReducer,
   orderDetails: orderDetailsReducer,
   orderPay: orderPayReducer,
@@ -72,6 +85,15 @@ const reducer = combineReducers({
   productCategoryList: productCategoryListReducer,
   productReviewCreate: productReviewCreateReducer,
   orderSummary: orderSummaryReducer,
+  userReviewCreate: userReviewCreateReducer,
+  userActivate: userActivateReducer,
+  userInformation: userInformationReducer,
+  forgotPassword: forgotPasswordReducer,
+  resetPassword: resetPasswordReducer,
+  salePerHourSaller: salePerHourForSallerSummaryReducer,
+  productAnalysis: productAnalysisReducer,
+  sellerMoneyAnalysis: sellerMoneyAnalysisReducer,
+  sellerMonthlyAnalysis: sellerMonthlyAnalysisReducer,
 });
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

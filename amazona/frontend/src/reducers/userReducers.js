@@ -28,6 +28,25 @@ import {
   USER_TOPSELLERS_LIST_REQUEST,
   USER_TOPSELLERS_LIST_SUCCESS,
   USER_TOPSELLERS_LIST_FAIL,
+  USER_REVIEW_CREATE_REQUEST,
+  USER_REVIEW_CREATE_SUCCESS,
+  USER_REVIEW_CREATE_FAIL,
+  USER_REVIEW_CREATE_RESET,
+  USER_ACTIVATE_REQUEST,
+  USER_ACTIVATE_SUCCESS,
+  USER_ACTIVATE_FAIL,
+  USER_INFO_FAIL,
+  USER_INFO_SUCCESS,
+  USER_INFO_REQUEST,
+  SELLER_REGISTER_REQUEST,
+  SELLER_REGISTER_SUCCESS,
+  SELLER_REGISTER_FAIL,
+  USER_FORGOT_PASSWORD_REQUEST,
+  USER_FORGOT_PASSWORD_SUCCESS,
+  USER_FORGOT_PASSWORD_FAIL,
+  USER_RESET_PASSWORD_REQUEST,
+  USER_RESET_PASSWORD_SUCCESS,
+  USER_RESET_PASSWORD_FAIL,
 } from "../constants/userConstants";
 
 export const userSigninReducer = (state = {}, action) => {
@@ -44,19 +63,81 @@ export const userSigninReducer = (state = {}, action) => {
       return state;
   }
 };
-export const userRegisterReducer = (state = {}, action) => {
+
+export const userInformationReducer = (state = {}, action) => {
   switch (action.type) {
-    case USER_REGISTER_REQUEST:
+    case USER_INFO_REQUEST:
       return { loading: true };
-    case USER_REGISTER_SUCCESS:
+    case USER_INFO_SUCCESS:
       return { loading: false, userInfo: action.payload };
-    case USER_REGISTER_FAIL:
+    case USER_INFO_FAIL:
       return { loading: false, error: action.payload };
+    case USER_SIGNOUT:
+      return {};
     default:
       return state;
   }
 };
-
+export const userRegisterReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case USER_REGISTER_REQUEST:
+      return { loading: true };
+    case USER_REGISTER_SUCCESS:
+      return { loading: false, userInfo: action.payload, success: true };
+    case USER_REGISTER_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
+export const sellerRegisterReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case SELLER_REGISTER_REQUEST:
+      return { loading: true };
+    case SELLER_REGISTER_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case SELLER_REGISTER_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
+export const forgotPasswordReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case USER_FORGOT_PASSWORD_REQUEST:
+      return { loading: true };
+    case USER_FORGOT_PASSWORD_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case USER_FORGOT_PASSWORD_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
+export const resetPasswordReducer = (state = {}, action, success = false) => {
+  switch (action.type) {
+    case USER_RESET_PASSWORD_REQUEST:
+      return { loading: true };
+    case USER_RESET_PASSWORD_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case USER_RESET_PASSWORD_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
+export const userActivateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_ACTIVATE_REQUEST:
+      return { loading: true };
+    case USER_ACTIVATE_SUCCESS:
+      return { loading: false, message: action.payload, success: true };
+    case USER_ACTIVATE_FAIL:
+      return { loading: false, error: action.payload, success: false };
+    default:
+      return state;
+  }
+};
 export const userDetailsReducer = (state = { loading: true }, action) => {
   switch (action.type) {
     case USER_DETAILS_REQUEST:
@@ -140,6 +221,21 @@ export const userTopSellersListReducer = (
       return { loading: false, users: action.payload };
     case USER_TOPSELLERS_LIST_FAIL:
       return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const userReviewCreateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case USER_REVIEW_CREATE_REQUEST:
+      return { loading: true };
+    case USER_REVIEW_CREATE_SUCCESS:
+      return { loading: false, success: true, review: action.payload };
+    case USER_REVIEW_CREATE_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_REVIEW_CREATE_RESET:
+      return {};
     default:
       return state;
   }

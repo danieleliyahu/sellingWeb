@@ -26,8 +26,8 @@ export default function HomeScreen() {
     dispatch(listTopSellers());
   }, [dispatch]);
   return (
-    <div>
-      <h2>Top Sellers</h2>
+    <div className="container-fluid">
+      <h2 className="title">Top Sellers</h2>
       {loadingSellers ? (
         <LoadingBox></LoadingBox>
       ) : errorSellers ? (
@@ -35,22 +35,24 @@ export default function HomeScreen() {
       ) : (
         <>
           {sellers.length === 0 && <MessageBox>No Seller Found</MessageBox>}
-          <Carousel showArrows autoPlay showThumbs={false}>
+          <Carousel infiniteLoop={true} showArrows autoPlay showThumbs={false}>
             {sellers.map((seller) => (
-              <div key={seller._id}>
-                <Link to={`/seller/${seller._id}`}>
-                  <div>
-                    {" "}
-                    <img src={seller.seller.logo} alt={seller.seller.name} />
-                    <p className="legend">{seller.seller.name}</p>
-                  </div>
-                </Link>
-              </div>
+              <Link to={`/seller/${seller._id}`}>
+                <div className="homePageImage" style={{ height: "90%" }}>
+                  {" "}
+                  <img
+                    className="medium"
+                    src={seller.seller.logo}
+                    alt={seller.seller.name}
+                  />
+                  <p className="legend">{seller.seller.name}</p>
+                </div>
+              </Link>
             ))}
           </Carousel>
         </>
       )}
-      <h2>Featured Products</h2>
+      <h2 className="title">Featured Products</h2>
       {loading ? (
         <LoadingBox></LoadingBox>
       ) : error ? (

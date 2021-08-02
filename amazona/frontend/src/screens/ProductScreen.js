@@ -15,7 +15,6 @@ export default function ProductScreen(props) {
   const { loading, error, product } = productDetails;
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
-
   const productReviewCreate = useSelector((state) => state.productReviewCreate);
   const {
     loading: loadingReviewCreate,
@@ -48,6 +47,10 @@ export default function ProductScreen(props) {
       alert("Please enter comment and rating");
     }
   };
+  const [image, setImage] = useState();
+  useEffect(() => {
+    if (product) setImage(product.image[0]);
+  }, [product]);
   return (
     <div>
       {loading ? (
@@ -58,13 +61,35 @@ export default function ProductScreen(props) {
         <div>
           <Link to="/">Back to result</Link>
           <div className="row top">
-            <div className="col-2">
-              <img
-                className="large"
-                src={product.image}
-                alt={product.name}></img>
+            <div className="col-2 productContainer ">
+              {console.log(product.image)}
+              <div className="product-small-img">
+                <ul>
+                  {product.length !== 0
+                    ? product.image.map((image, i) => {
+                        return (
+                          <li>
+                            <div className="switchPhoto">
+                              {
+                                <img
+                                  onClick={(e) => setImage(e.target.src)}
+                                  className="medium"
+                                  src={image}
+                                  alt={product.name}></img>
+                              }
+                            </div>
+                          </li>
+                        );
+                      })
+                    : ""}
+                </ul>
+              </div>
+              <div className="img-container removeborder">
+                <img src={image}></img>
+              </div>
             </div>
-            <div className="col-1">
+
+            <div className="col-1 productinfo">
               <ul>
                 <li>
                   <h1>{product.name}</h1>
@@ -74,37 +99,27 @@ export default function ProductScreen(props) {
                     rating={product.rating}
                     numReviews={product.numReviews}></Rating>
                 </li>
-                <li>Pirce : ${product.price}</li>
                 <li>
-                  Description:
+                  <span className="borderkey">Pirce :</span> ${product.price}
+                </li>
+                <li>
+                  <span className="borderkey">Description :</span>
                   <p>{product.description}</p>
                 </li>
               </ul>
-            </div>
-            <div className="col-1">
-              <div className="card card-body">
+              <div
+                className="card card-body autoheight removeborder"
+                style={{ padding: "0rem" }}>
                 <ul>
                   <li>
-                    Seller{" "}
-                    <h2>
-                      <Link to={`/seller/${product.seller._id}`}>
-                        {product.seller.seller.name}
-                      </Link>
-                    </h2>
-                    {console.log(product)}
-                    <Rating
-                      rating={product.seller.seller.rating}
-                      numReviews={product.seller.seller.numReviews}></Rating>
-                  </li>
-                  <li>
                     <div className="row">
-                      <div>Price</div>
+                      <div className="borderkey">Price</div>
                       <div className="price">${product.price}</div>
                     </div>
                   </li>
                   <li>
                     <div className="row">
-                      <div>Status</div>
+                      <div className="borderkey">Status</div>
                       <div>
                         {product.countInStock > 0 ? (
                           <span className="success">In Stock</span>
@@ -118,7 +133,7 @@ export default function ProductScreen(props) {
                     <>
                       <li>
                         <div className="row">
-                          <div>Qty</div>
+                          <div className="borderkey">Qty</div>
                           <div>
                             <select
                               value={qty}
@@ -146,21 +161,32 @@ export default function ProductScreen(props) {
                 </ul>
               </div>
             </div>
+            <div className="col-1 flex">
+              <div className="card card-body autoheight">
+                <ul>
+                  <li className="sellerlicard">
+                    <span className="borderkey">Seller: </span>
+                    <Link to={`/seller/${product.seller._id}`}>
+                      {product.seller.seller.name}
+                    </Link>
+                    <span>
+                      <img className="small" src={product.seller.seller.logo} />
+                    </span>
+                    <Rating
+                      rating={product.seller.seller.rating}
+                      numReviews={product.seller.seller.numReviews}></Rating>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
           <div>
+            {product.reviews.length === 0 &&
+              // <MessageBox>There is no review</MessageBox>
+              ""}
             <h2 id="reviews">Reviews</h2>
-            {product.reviews.length === 0 && (
-              <MessageBox>There is no review</MessageBox>
-            )}
+
             <ul>
-              {product.reviews.map((review) => (
-                <li key={review._id}>
-                  <strong>{review.name}</strong>
-                  <Rating rating={review.rating} caption=" "></Rating>
-                  <p>{review.createdAt.substring(0, 10)}</p>
-                  <p>{review.comment}</p>
-                </li>
-              ))}
               <li>
                 {userInfo ? (
                   <form className="form" onSubmit={submitHandler}>
@@ -209,6 +235,17 @@ export default function ProductScreen(props) {
                   </MessageBox>
                 )}
               </li>
+            </ul>
+            <ul className="reviewul">
+              {console.log(product)}
+              {product.reviews.map((review) => (
+                <li key={review._id}>
+                  <strong>{review.name}</strong>
+                  <Rating rating={review.rating} caption=" "></Rating>
+                  <p>{review.createdAt.substring(0, 10)}</p>
+                  <p className="comment">{review.comment}</p>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

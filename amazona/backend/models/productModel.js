@@ -4,6 +4,7 @@ const reviewSchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
     comment: { type: String, required: true },
     rating: { type: String, required: true },
+    userId: { type: String, required: true, unique: true },
   },
   {
     timestamps: true,
@@ -13,7 +14,12 @@ const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     seller: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    image: { type: String, required: true },
+    image: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     brand: { type: String, required: true },
     category: { type: String, required: true },
     description: { type: String, required: true },

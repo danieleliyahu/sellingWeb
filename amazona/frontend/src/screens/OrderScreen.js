@@ -1,4 +1,4 @@
-import Axios from "axios";
+import Axios from "../axios.js";
 import { PayPalButton } from "react-paypal-button-v2";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,22 +10,28 @@ import {
   ORDER_DELIVER_RESET,
   ORDER_PAY_RESET,
 } from "../constants/orderConstants";
+import { combineReducers } from "redux";
 
 export default function OrderScreen(props) {
   const orderId = props.match.params.id;
   const [sdkReady, setSdkReady] = useState(false);
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, loading, error } = orderDetails;
+  console.log(orderDetails);
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
-
+  const [ownThisOrder, setOwnThisOrder] = useState(false);
   const orderPay = useSelector((state) => state.orderPay);
   const {
     loading: loadingPay,
     error: errorPay,
     success: successPay,
   } = orderPay;
-
+  console.log(orderPay);
+  useEffect(async () => {
+    const { data } = await Axios.get(`/api/analysis/sellerorder/${orderId}`);
+    setOwnThisOrder(data);
+  }, []);
   const orderDeliver = useSelector((state) => state.orderDeliver);
   const {
     loading: loadingDeliver,
@@ -83,11 +89,12 @@ export default function OrderScreen(props) {
         <div className="col-2">
           <ul>
             <li>
-              <div className="card card-body">
-                <h2>Shipping</h2>
-                <p>
-                  <strong>Name:</strong> {order.shippingAddress.fullName} <br />
-                  <strong>Address: </strong> {order.shippingAddress.address},
+              <div className="paymentcard card-body">
+                <h2 className="ordertitle">Shipping</h2>
+                <p className="orderkey">
+                  <strong>Name :</strong> {order.shippingAddress.fullName}{" "}
+                  <br />
+                  <strong>Address : </strong> {order.shippingAddress.address},
                   {order.shippingAddress.city},{" "}
                   {order.shippingAddress.postalCode},
                   {order.shippingAddress.country}
@@ -102,10 +109,10 @@ export default function OrderScreen(props) {
               </div>
             </li>
             <li>
-              <div className="card card-body">
-                <h2>Payment</h2>
-                <p>
-                  <strong>Method:</strong> {order.paymentMethod}
+              <div className="paymentcard card-body">
+                <h2 className="ordertitle">Payment</h2>
+                <p className="orderkey">
+                  <strong>Method :</strong> {order.paymentMethod}
                 </p>
                 {order.isPaid ? (
                   <MessageBox variant="success">
@@ -117,8 +124,8 @@ export default function OrderScreen(props) {
               </div>
             </li>
             <li>
-              <div className="card card-body">
-                <h2>Order Items</h2>
+              <div className="paymentcard card-body">
+                <h2 className="ordertitle">Order Items</h2>
                 <ul>
                   {order.orderItems.map((item) => (
                     <li key={item.product}>
@@ -147,10 +154,10 @@ export default function OrderScreen(props) {
           </ul>
         </div>
         <div className="col-1">
-          <div className="card card-body">
+          <div className="paymentcard card-body">
             <ul>
               <li>
-                <h2>Order Summary</h2>
+                <h2 className="ordertitle">Order Summary</h2>
               </li>
               <li>
                 <div className="row">
@@ -198,20 +205,22 @@ export default function OrderScreen(props) {
                   )}
                 </li>
               )}
-              {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
-                <li>
-                  {loadingDeliver && <LoadingBox></LoadingBox>}
-                  {errorDeliver && (
-                    <MessageBox variant="danger">{errorDeliver}</MessageBox>
-                  )}
-                  <button
-                    type="button"
-                    className="primary block"
-                    onClick={deliverHandler}>
-                    Deliver Order
-                  </button>
-                </li>
-              )}
+              {(ownThisOrder || userInfo.isAdmin) &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <li>
+                    {loadingDeliver && <LoadingBox></LoadingBox>}
+                    {errorDeliver && (
+                      <MessageBox variant="danger">{errorDeliver}</MessageBox>
+                    )}
+                    <button
+                      type="button"
+                      className="primary block"
+                      onClick={deliverHandler}>
+                      Deliver Order
+                    </button>
+                  </li>
+                )}
             </ul>
           </div>
         </div>

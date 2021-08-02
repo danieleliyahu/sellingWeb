@@ -4,13 +4,15 @@ import Rating from "./Rating";
 
 const Product = ({ product }) => {
   return (
-    <div className="card" key={product._id}>
-      <Link to={`/product/${product._id}`}>
-        <img className="medium" src={product.image} alt="product" />
-      </Link>
+    <div className="card productwidth removeborder" key={product._id}>
+      <div className="homePageImage">
+        <Link to={`/product/${product._id}`}>
+          <img className="medium" src={product.image[0]} alt="product" />
+        </Link>
+      </div>
       <div className="card-body">
         <Link to={`/product/${product._id}`}>
-          <h2>{product.name}</h2>
+          <h2 className="producttitle">{`${product.name} (${product.brand})`}</h2>
         </Link>
         <Rating rating={product.rating} numReviews={product.numReviews} />
         <div className="row">

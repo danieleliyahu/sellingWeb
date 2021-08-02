@@ -7,9 +7,13 @@ import orderRouter from "./routers/orderRouter.js";
 import dotenv from "dotenv";
 import path from "path";
 import uploadRouter from "./routers/uploadRouter.js";
-
+import cookieParser from "cookie-parser";
+import analysisRouter from "./routers/analysisRouter.js";
 dotenv.config();
+
 const app = express();
+app.use(cookieParser());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 mongoose.connect(process.env.MONGODB_URL || "mongodb://localhost/amazona", {
@@ -18,6 +22,7 @@ mongoose.connect(process.env.MONGODB_URL || "mongodb://localhost/amazona", {
   useCreateIndex: true,
 });
 app.use("/api/uploads", uploadRouter);
+app.use("/api/analysis", analysisRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/orders", orderRouter);

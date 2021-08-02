@@ -3,7 +3,20 @@ import expressAsyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import data from "../data.js";
 import User from "../models/userModel.js";
-import { generateToken, isAdmin, isAuth } from "../utils.js";
+
+import {
+  createAccessToken,
+  createActivationToken,
+  createRefreshToken,
+  generateToken,
+  isAdmin,
+  isAuth,
+  passwordValidate,
+  validateEmail,
+} from "../utils.js";
+import { sendMail } from "./sendMail.js";
+import jwt from "jsonwebtoken";
+import Product from "../models/productModel.js";
 
 const userRouter = express.Router();
 
@@ -22,8 +35,11 @@ userRouter.get(
 userRouter.get(
   "/seed",
   expressAsyncHandler(async (req, res) => {
+    console.log(data.users);
     // await User.remove({});
     const createdUsers = await User.insertMany(data.users);
+    console.log(createdUsers);
+
     res.send({ createdUsers });
   })
 );
@@ -31,44 +47,374 @@ userRouter.get(
 userRouter.post(
   "/signin",
   expressAsyncHandler(async (req, res) => {
-    const user = await User.findOne({ email: req.body.email });
-    if (user) {
-      if (bcrypt.compareSync(req.body.password, user.password)) {
-        res.send({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          isSeller: user.isSeller,
-          token: generateToken(user),
-        });
-        return;
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        return res.status(403).send({ message: "Invalid email or password" });
       }
+      const isMatch = await bcrypt.compare(req.body.password, user.password);
+      if (!isMatch)
+        return res.status(403).json({ msg: "Password is incorrect." });
+      const refresh_token = createRefreshToken({ id: user._id });
+      res.cookie("refreshToken", refresh_token, {
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.send(user);
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
     }
-    res.status(401).send({ message: "Invalid email or password" });
+  })
+);
+
+userRouter.post(
+  "/refresh_token",
+  expressAsyncHandler((req, res) => {
+    console.log(req.cookies.refreshToken);
+
+    try {
+      const rf_token = req.cookies.refreshToken;
+      if (!rf_token) {
+        return res.status(403).json({ message: "Please login now!" });
+      }
+
+      jwt.verify(
+        rf_token,
+        process.env.REFRESH_TOKEN_SECRET,
+        async (err, user) => {
+          if (err) {
+            console.log(err);
+
+            return res.status(403).json({ message: "Please login now!" });
+          }
+
+          const accessToken = createAccessToken({ id: user.id });
+          res.cookie("accessToken", accessToken, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+          console.log(user, "sssssssssssssssssssssssssss");
+          // const userInfo = await User.findOne({ _id: user.id });
+
+          res.json(accessToken);
+        }
+      );
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+  })
+);
+
+userRouter.post(
+  "/forgot",
+  expressAsyncHandler(async (req, res) => {
+    const { CLIENT_URL } = process.env;
+    try {
+      const { email } = req.body;
+      const user = await User.findOne({ email });
+      if (!user)
+        return res.status(401).send({ message: "This email does not exist" });
+      const access_token = createAccessToken({ id: user._id });
+      const url = `${CLIENT_URL}user/reset/${access_token}`;
+      sendMail(email, url, "Reset your password");
+      res.json({ message: "Re-send the password,please check your email." });
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
+    }
+  })
+);
+
+userRouter.post(
+  "/reset",
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (!passwordValidate(password)) {
+        return res.status(401).send({
+          message:
+            "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+        });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 8);
+      await User.findOneAndUpdate(
+        { _id: req.user.id },
+        {
+          password: passwordHash,
+        }
+      );
+      res.send({ message: "Password successfully changed!" });
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
+    }
+  })
+);
+
+userRouter.get(
+  "/info",
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id).select("-password");
+      // if (!user) {
+      //   res.status(403).send();
+      // }
+      res.send(user);
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
+    }
   })
 );
 
 userRouter.post(
   "/register",
   expressAsyncHandler(async (req, res) => {
-    const user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 8),
-    });
-    const createdUser = await user.save();
-    res.send({
-      _id: createdUser._id,
-      name: createdUser.name,
-      email: createdUser.email,
-      isAdmin: createdUser.isAdmin,
-      isSeller: user.isSeller,
-      token: generateToken(createdUser),
-    });
+    const {
+      name,
+      email,
+      // sellerName,
+      confirmPassword,
+      password,
+      // sellerLogo,
+      // sellerDescription,
+    } = req.body;
+    console.log(email);
+    const existsUser = await User.findOne({ email });
+    if (existsUser) {
+      return res.status(401).send({ message: "user already exists" });
+    }
+    // let re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    // let passwordValidate = re.test(String(password));
+    // if (password.length < 8 || !passwordValidate) {
+    //   return res.status(401).send({
+    //     message:
+    //       "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+    //   });
+    // }
+    if (!passwordValidate(password)) {
+      return res.status(401).send({
+        message:
+          "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+      });
+    }
+    if (password !== confirmPassword) {
+      return res.status(401).send({
+        message: "Password and confirm Password dont match",
+      });
+    }
+    if (!validateEmail(email)) {
+      return res.status(401).send({ message: "invalid email" });
+    }
+
+    if (
+      name &&
+      email &&
+      // sellerName &&
+      // sellerLogo &&
+      // sellerDescription &&
+      password
+    ) {
+      const userInfo = {
+        name,
+        email,
+        // seller: {
+        //   name: sellerName,
+        //   logo: sellerLogo,
+        //   description: sellerDescription,
+        // },
+        // isSeller: true,
+
+        password: bcrypt.hashSync(req.body.password, 8),
+      };
+      // const user = new User({
+      //   userInfo
+      // });
+      const activation_token = createActivationToken(userInfo);
+      const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
+      sendMail(email, url, "Verify your email address");
+
+      res.send({
+        message: "Register Success! Please activate your email to start.",
+        success: true,
+      });
+
+      // const createdUser = await user.save();
+      // res.send({
+      //   _id: createdUser._id,
+      //   name: createdUser.name,
+      //   email: createdUser.email,
+      //   isAdmin: createdUser.isAdmin,
+      //   isSeller: user.isSeller,
+      //   token: generateToken(createdUser),
+      // });
+    } else if (name && email && password) {
+      const userInfo = {
+        name,
+        email,
+        password: bcrypt.hashSync(req.body.password, 8),
+      };
+      const activation_token = createActivationToken(userInfo);
+      const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
+      sendMail(email, url, "Verify your email address");
+      // const createdUser = await user.save();
+      // res.send({
+      //   _id: createdUser._id,
+      //   name: createdUser.name,
+      //   email: createdUser.email,
+      //   isAdmin: createdUser.isAdmin,
+      //   isSeller: user.isSeller,
+      //   token: generateToken(createdUser),
+      // });
+      res.send({
+        message: "Register Success! Please activate your email to start.",
+      });
+    } else {
+      res.status(401).send({ message: "Please fill in all fields" });
+    }
   })
 );
 
+userRouter.post(
+  "/sellerRegister",
+  expressAsyncHandler(async (req, res) => {
+    const {
+      name,
+      email,
+      sellerName,
+      confirmPassword,
+      password,
+      sellerLogo,
+      sellerDescription,
+    } = req.body;
+    console.log(email);
+    const existsUser = await User.findOne({ email });
+    if (existsUser) {
+      return res.status(401).send({ message: "user already exists" });
+    }
+
+    if (!passwordValidate(password)) {
+      return res.status(401).send({
+        message:
+          "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+      });
+    }
+    if (password !== confirmPassword) {
+      return res.status(401).send({
+        message: "Password and confirm Password dont match",
+      });
+    }
+    if (!validateEmail(email)) {
+      return res.status(401).send({ message: "invalid email" });
+    }
+
+    if (
+      name &&
+      email &&
+      sellerName &&
+      sellerLogo &&
+      sellerDescription &&
+      password
+    ) {
+      const userInfo = {
+        name,
+        email,
+        seller: {
+          name: sellerName,
+          logo: sellerLogo,
+          description: sellerDescription,
+        },
+        isSeller: true,
+
+        password: bcrypt.hashSync(req.body.password, 8),
+      };
+
+      const activation_token = createActivationToken(userInfo);
+      const url = `${process.env.CLIENT_URL}user/activate/${activation_token}`;
+      sendMail(email, url, "Verify your email address");
+
+      res.send({
+        message: "Register Success! Please activate your email to start.",
+        success: true,
+      });
+    } else {
+      res.status(401).send({ message: "Please fill in all fields" });
+    }
+  })
+);
+userRouter.get(
+  "/allusers",
+  isAuth,
+  isAdmin,
+  expressAsyncHandler(async (req, res) => {
+    const users = await User.find({}).select("-password");
+
+    res.send(users);
+  })
+);
+userRouter.post(
+  "/activate",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const { activation_token } = req.body;
+      const user = jwt.verify(
+        activation_token,
+        process.env.ACTIVATION_TOKEN_SECRET
+      );
+      console.log(user.isSeller);
+      let x = 0;
+      const check = await User.findOne({ email: user.email });
+      if (check) {
+        return res.status(400).json({ message: "This email already exsists." });
+      }
+
+      if (
+        user.name &&
+        user.email &&
+        user.password &&
+        user.seller &&
+        user.seller.name &&
+        user.seller.logo &&
+        user.seller.description &&
+        user.isSeller
+      ) {
+        console.log(user);
+
+        const { name, email, password, seller, isSeller } = user;
+
+        const newUser = new User({
+          name,
+          email,
+          password,
+          seller: {
+            name: seller.name,
+            logo: seller.logo,
+            description: seller.description,
+          },
+          isSeller,
+        });
+        await newUser.save();
+        res.json({ message: "Account has been activated!" });
+      } else if (user.name && user.email && user.password) {
+        const { name, email, password, isAdmin, isSeller, token } = user;
+
+        const newUser = new User({
+          name,
+          email,
+          password,
+          isAdmin,
+          isSeller,
+          token,
+        });
+        await newUser.save();
+        res.json({ message: "Account has been activated!" });
+      } else {
+        res.status(401).send({ message: "invalid token" });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: err.message });
+    }
+  })
+);
 userRouter.get(
   "/:id",
   expressAsyncHandler(async (req, res) => {
@@ -84,39 +430,39 @@ userRouter.put(
   "/profile",
   isAuth,
   expressAsyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id);
-    if (user) {
-      user.name = req.body.name || user.name;
-      user.email = req.body.email || user.email;
-      if (user.isSeller) {
-        user.seller.name = req.body.sellerName || user.seller.name;
-        user.seller.description =
-          req.body.sellerDescription || user.seller.description;
-        user.seller.logo = req.body.sellerLogo || user.seller.logo;
-      }
-      if (req.body.password) {
-        user.password = bcrypt.hashSync(req.body.password, 8);
-      }
-      const updatedUser = await user.save();
-      res.send({
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        isAdmin: updatedUser.isAdmin,
-        isSeller: user.isSeller,
-        token: generateToken(updatedUser),
-      });
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(401).send({ message: "You are not signed in" });
     }
-  })
-);
+    if (req.body.password) {
+      if (!passwordValidate(req.body.password)) {
+        return res.status(500).send({
+          message:
+            "Password most contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+        });
+      }
 
-userRouter.get(
-  "/",
-  isAuth,
-  isAdmin,
-  expressAsyncHandler(async (req, res) => {
-    const users = await User.find({});
-    res.send(users);
+      user.password = bcrypt.hashSync(req.body.password, 8);
+    }
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    if (user.isSeller) {
+      user.seller.name = req.body.sellerName || user.seller.name;
+      user.seller.description =
+        req.body.sellerDescription || user.seller.description;
+      user.seller.logo = req.body.sellerLogo || user.seller.logo;
+    }
+
+    const updatedUser = await user.save();
+    res.send({ message: "Update Success" });
+    // res.send({
+    //   _id: updatedUser._id,
+    //   name: updatedUser.name,
+    //   email: updatedUser.email,
+    //   isAdmin: updatedUser.isAdmin,
+    //   isSeller: user.isSeller,
+    //   token: generateToken(updatedUser),
+    // });
   })
 );
 
@@ -125,15 +471,19 @@ userRouter.delete(
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
-    const user = await User.findById(req.params.id);
-    if (user) {
-      if (user.email === "admin@example.com") {
-        res.status(400).send({ message: "Can Not Delete Admin User" });
-        return;
-      }
-      const deleteUser = await user.remove();
-      res.send({ message: "User Deleted", user: deleteUser });
-    } else {
+    try {
+      // const user = await User.findById(req.params.id);
+      const user = await User.findByIdAndDelete(req.params.id);
+      console.log(user._id);
+
+      const product = await Product.deleteMany({ seller: user._id });
+      console.log(product, "cccc");
+      // if (product) {
+      //   const deleteProduct = await product.remove();
+      //   console.log("deleteProduct");
+      // }
+      res.send({ message: "User Deleted" });
+    } catch (err) {
       res.status(404).send({ message: "User Not Found" });
     }
   })
@@ -151,7 +501,8 @@ userRouter.put(
       //   req.body.isSeller === user.isSeller ? user.isSeller : req.body.isSeller;
       // user.isAdmin =
       //   req.body.isAdmin === user.isAdmin ? user.isAdmin : req.body.isAdmin;
-      user.isAdmin = Boolean(req.body.isSeller);
+
+      user.isAdmin = Boolean(req.body.isAdmin);
       user.isSeller = Boolean(req.body.isSeller);
 
       const updatedUser = await user.save();
@@ -161,4 +512,50 @@ userRouter.put(
     }
   })
 );
+
+userRouter.post(
+  "/:id/reviews",
+  isAuth,
+  expressAsyncHandler(async (req, res) => {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    const ratingUser = await User.findById(req.user.id);
+    if (user) {
+      if (user.seller.reviews.find((x) => x.name === ratingUser.name)) {
+        return res
+          .status(400)
+          .send({ message: "You already submitted a review" });
+      }
+      const review = {
+        name: ratingUser.name,
+        rating: Number(req.body.rating),
+        comment: req.body.comment,
+      };
+
+      user.seller.reviews.push(review);
+      user.seller.numReviews = user.seller.reviews.length;
+      user.seller.rating =
+        user.seller.reviews.reduce((a, c) => Number(c.rating) + a, 0) /
+        user.seller.numReviews;
+
+      const updatedUser = await user.save();
+      res.status(201).send({
+        message: "Review Created",
+        review:
+          updatedUser.seller.reviews[updatedUser.seller.reviews.length - 1],
+      });
+    } else {
+      res.status(404).send({ message: "User Not Found" });
+    }
+  })
+);
+userRouter.get("/", expressAsyncHandler, async (req, res) => {
+  try {
+    res.clearCookie("refreshtoken");
+    return res.send({ message: "Logged out." });
+  } catch (err) {
+    return res.status(500).send({ message: error.message });
+  }
+});
 export default userRouter;

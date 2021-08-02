@@ -5,6 +5,9 @@ import { Redirect, Route } from "react-router";
 const AdminRoute = ({ component: Component, ...rest }) => {
   const userSignin = useSelector((state) => state.userSignin);
   const { userInfo } = userSignin;
+  {
+    console.log(userInfo);
+  }
   return (
     <Route
       {...rest}

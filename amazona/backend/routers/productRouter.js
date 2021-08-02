@@ -10,7 +10,7 @@ const productRouter = express.Router();
 productRouter.get(
   "/",
   expressAsyncHandler(async (req, res) => {
-    const pageSize = 3;
+    const pageSize = 9;
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || "";
     const category = req.query.category || "";
@@ -72,34 +72,39 @@ productRouter.get(
   "/seed",
   expressAsyncHandler(async (req, res) => {
     // await Product.remove({});
-    const seller = await User.findOne({ isSeller: true });
-    if (seller) {
-      const products = data.products.map((product) => ({
-        ...product,
-        seller: seller._id,
-      }));
-      const createdProducts = await Product.insertMany(products);
-      res.send({ createdProducts });
-    } else {
-      res
-        .status(500)
-        .send({ message: "No seller found. first run /api/users/seed" });
-    }
+    // const seller = await User.findOne({ isSeller: true });
+    // if (seller) {
+    //   const products = data.products.map((product) => ({
+    //     ...product,
+    //     seller: seller._id,
+    //   }));
+    const createdProducts = await Product.insertMany(data.products);
+    res.send({ createdProducts });
+    // } else {
+    //   res
+    //     .status(500)
+    //     .send({ message: "No seller found. first run /api/users/seed" });
+    // }
   })
 );
 
 productRouter.get(
   "/:id",
   expressAsyncHandler(async (req, res) => {
-    const product = await Product.findById(req.params.id).populate(
-      "seller",
-      "seller.name seller.logo seller.rating seller.numReviews"
-    );
-    if (product) {
+    try {
+      const product = await Product.findById(req.params.id).populate(
+        "seller",
+        "seller.name seller.logo seller.rating seller.numReviews"
+      );
       res.send(product);
-    } else {
+    } catch (err) {
       res.status(404).send({ message: "Product Not Found" });
     }
+    //   console.log(product);
+    //   if (product) {
+    //   } else {
+    //   }
+    // })
   })
 );
 
@@ -108,20 +113,27 @@ productRouter.post(
   isAuth,
   isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
-    const product = new Product({
-      name: "sample name" + Date.now(),
-      seller: req.user._id,
-      image: "/images/p1.jpg",
-      price: 0,
-      category: "sample category",
-      brand: "sample brand",
-      countInStock: 0,
-      rating: 0,
-      numReviews: 0,
-      description: "sample description",
-    });
-    const createdProduct = await product.save();
-    res.send({ message: "Product Created", product: createdProduct });
+    let { name, image, price, countInStock, category, brand, description } =
+      req.body.productInfo;
+    if (name && image && price && category && brand && description) {
+      category = category.toLowerCase();
+      const product = new Product({
+        name,
+        seller: req.user.id,
+        image,
+        price,
+        category,
+        brand,
+        countInStock,
+        rating: 0,
+        numReviews: 0,
+        description,
+      });
+      const createdProduct = await product.save();
+      res.send({ message: "Product Created", product: createdProduct });
+    } else {
+      res.status(400).send({ message: "You Most file all " });
+    }
   })
 );
 productRouter.put(
@@ -150,12 +162,23 @@ productRouter.put(
 productRouter.delete(
   "/:id",
   isAuth,
-  isAdmin,
+  isSellerOrAdmin,
   expressAsyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
+    console.log(product._id, req.user.id);
     if (product) {
-      const deleteProduct = await product.remove();
-      res.send({ message: "Product Deleted", product: deleteProduct });
+      if (req.isSeller && !req.isAdmin) {
+        if (product.seller === req.user.id) {
+          return res
+            .status(404)
+            .send({ message: "sory you dont own this product" });
+        }
+        const deleteProduct = await product.remove();
+        res.send({ message: "Product Deleted", product: deleteProduct });
+      } else {
+        const deleteProduct = await product.remove();
+        res.send({ message: "Product Deleted", product: deleteProduct });
+      }
     } else {
       res.status(404).send({ message: "Product Not Found" });
     }
@@ -174,8 +197,12 @@ productRouter.post(
           .status(400)
           .send({ message: "You already submitted a review" });
       }
+      const user = await User.findById(req.user.id);
+      console.log(user);
+
       const review = {
-        name: req.user.name,
+        userId: req.user.id,
+        name: user.name,
         rating: Number(req.body.rating),
         comment: req.body.comment,
       };
@@ -184,7 +211,6 @@ productRouter.post(
       product.rating =
         product.reviews.reduce((a, c) => Number(c.rating) + a, 0) /
         product.numReviews;
-      console.log(product.rating);
 
       const updatedProduct = await product.save();
       res.status(201).send({

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Axios from "axios";
+import Axios from "../axios.js";
 import { detailsProduct, updateProduct } from "../actions/productActions";
 import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
@@ -109,10 +109,10 @@ export default function ProductEditScreen(props) {
                 onChange={(e) => setName(e.target.value)}></input>
             </div>
             <div>
-              <label htmlFor="price">Price</label>
+              <label htmlFor="price">Price ($)</label>
               <input
                 id="price"
-                type="text"
+                type="number"
                 placeholder="Enter price"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}></input>
@@ -170,7 +170,7 @@ export default function ProductEditScreen(props) {
               <textarea
                 id="description"
                 rows="3"
-                type="text"
+                type="number"
                 placeholder="Enter description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}></textarea>

@@ -1,3 +1,4 @@
+import Axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { detailsUser, updateUserProfile } from "../actions/userActions";
@@ -12,11 +13,13 @@ const ProfileScreen = () => {
   const [sellerName, setSellerName] = useState("");
   const [sellerLogo, setSellerLogo] = useState("");
   const [sellerDescription, setSellerDescription] = useState("");
+  const [loadingUpload, setLoadingUpload] = useState(false);
+  const [errorUpload, setErrorUpload] = useState("");
 
   const userSignin = useSelector((state) => state.userSignin);
-  const { userInfo } = userSignin;
-  const userDetails = useSelector((state) => state.userDetails);
-  const { loading, error, user } = userDetails;
+  const { userInfo, loading, error } = userSignin;
+  // const userDetails = useSelector((state) => state.userDetails);
+  // const { loading, error, user } = userDetails;
   const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
   const {
     success: successUpdate,
@@ -25,19 +28,19 @@ const ProfileScreen = () => {
   } = userUpdateProfile;
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!user) {
+    if (!userInfo) {
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
       dispatch(detailsUser(userInfo._id));
     } else {
       setName(userInfo.name);
       setEmail(userInfo.email);
     }
-    if (user) {
-      setSellerName(user.seller.name);
-      setSellerLogo(user.seller.logo);
-      setSellerDescription(user.seller.description);
+    if (userInfo.seller) {
+      setSellerName(userInfo.seller.name);
+      setSellerLogo(userInfo.seller.logo);
+      setSellerDescription(userInfo.seller.description);
     }
-  }, [dispatch, userInfo._id, user]);
+  }, [dispatch, userInfo._id, userInfo]);
   const submitHandler = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -45,7 +48,7 @@ const ProfileScreen = () => {
     } else {
       dispatch(
         updateUserProfile({
-          userId: user._id,
+          userId: userInfo._id,
           name,
           email,
           password,
@@ -54,6 +57,21 @@ const ProfileScreen = () => {
           sellerName,
         })
       );
+    }
+  };
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    const bodyFormData = new FormData();
+    bodyFormData.append("image", file);
+    setLoadingUpload(true);
+    try {
+      const { data } = await Axios.post("/api/uploads/logo", bodyFormData, {});
+
+      setSellerLogo(data);
+      setLoadingUpload(false);
+    } catch (error) {
+      setErrorUpload(error.message);
+      setLoadingUpload(false);
     }
   };
   return (
@@ -111,7 +129,7 @@ const ProfileScreen = () => {
                 placeholder="Enter confirm Password"
                 onChange={(e) => setConfirmPassword(e.target.value)}></input>
             </div>
-            {user.isSeller && (
+            {userInfo.isSeller && (
               <>
                 <h2>Seller</h2>
                 <div>
@@ -124,6 +142,18 @@ const ProfileScreen = () => {
                     onChange={(e) => setSellerName(e.target.value)}></input>
                 </div>
                 <div>
+                  <label htmlFor="sellerLogoFile">Seller Logo</label>
+                  <input
+                    id="sellerLogoFile"
+                    type="file"
+                    placeholder="Enter Seller Logo"
+                    onChange={uploadFileHandler}></input>
+                </div>
+                {loadingUpload && <LoadingBox></LoadingBox>}
+                {errorUpload && (
+                  <MessageBox variant="danger">{errorUpload}</MessageBox>
+                )}
+                <div>
                   <label htmlFor="sellerLogo">Seller Logo</label>
                   <input
                     id="sellerLogo"
@@ -132,6 +162,7 @@ const ProfileScreen = () => {
                     value={sellerLogo}
                     onChange={(e) => setSellerLogo(e.target.value)}></input>
                 </div>
+
                 <div>
                   <label htmlFor="sellerDescription">Seller Description</label>
                   <input
